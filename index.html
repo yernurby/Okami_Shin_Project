@@ -14,7 +14,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Оками Шин · 狼真</title>
 <meta name="description" content="Оками Шин (狼真) — вебтун о парне, который ищет правду об отце и учится доверять. Читайте главы онлайн.">
-<meta name="theme-color" content="#101216">
+<meta name="theme-color" content="#343943">
 <link rel="icon" type="image/png" href="images/logo.png">
 <style>
   :root{
@@ -33,15 +33,15 @@
     --font-ui:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   }
   [data-theme="dark"]{
-    --bg:#101216;
-    --bg-elevated:#181b21;
-    --bg-card:#1b1e25;
+    --bg:#343943;
+    --bg-elevated:#404652;
+    --bg-card:#464c59;
     --text:#ececee;
-    --text-muted:#a4a7b0;
-    --text-faint:#6d707a;
-    --border:#262a33;
+    --text-muted:#b3b6bf;
+    --text-faint:#84879a;
+    --border:#565d6c;
     --accent:#e0685c;
-    --accent-soft:#2c1c1c;
+    --accent-soft:#46302c;
     --shadow:0 10px 34px rgba(0,0,0,0.45);
   }
   *,*::before,*::after{ box-sizing:border-box; }
@@ -464,7 +464,7 @@ function characterPhotoInner(c, fallback){
 
 function renderCharactersGallery(){
   const grid = document.getElementById('characters-grid');
-  grid.innerHTML = CHARACTERS.map(c => `
+  grid.innerHTML = CHARACTERS.filter(c => c.revealed !== false).map(c => `
     <a href="#/character/${c.slug}" class="character-card">
       <div class="character-card-photo${c.photo ? ' has-image' : ''}" ${characterPhotoInner(c)}></div>
       <div class="character-card-body">
@@ -478,7 +478,7 @@ function renderCharactersGallery(){
 
 function renderCharacterPage(slug){
   const c = getCharacter(slug);
-  if (!c) { location.hash = '#/characters'; return; }
+  if (!c || c.revealed === false) { location.hash = '#/characters'; return; }
 
   const photoEl = document.getElementById('character-photo');
   if (c.photo) {
