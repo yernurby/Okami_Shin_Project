@@ -15,7 +15,7 @@
 <title>Оками Шин · 狼真</title>
 <meta name="description" content="Оками Шин (狼真) — вебтун о парне, который ищет правду об отце и учится доверять. Читайте главы онлайн.">
 <meta name="theme-color" content="#101216">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BA%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="images/logo.png">
 <style>
   :root{
     --bg:#f7f4ef;
@@ -70,7 +70,7 @@
     border-bottom:1px solid var(--border);
   }
   .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; }
-  .brand-emblem{ font-size:1.5rem; line-height:1; }
+  .brand-emblem{ width:26px; height:26px; object-fit:contain; }
   .brand-text{ display:flex; flex-direction:column; line-height:1.15; }
   .brand-name{ font-family:var(--font-display); font-weight:700; letter-spacing:.08em; font-size:.95rem; }
   .brand-jp{ font-size:.68rem; color:var(--text-faint); letter-spacing:.15em; }
@@ -133,7 +133,10 @@
     display:flex; align-items:center; justify-content:center;
   }
   .chapter-card-cover::after{
-    content:'🐺'; font-size:3rem; opacity:.16; position:absolute;
+    content:''; position:absolute; inset:0;
+    background-image:url('images/logo.png');
+    background-size:60px 60px; background-position:center; background-repeat:no-repeat;
+    opacity:.5;
   }
   .chapter-card-cover.has-image::after{ display:none; }
   .chapter-card-number{ position:relative; z-index:1; font-family:var(--font-display); font-size:2.3rem; font-weight:700; color:var(--accent); }
@@ -163,9 +166,14 @@
     background:linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
     background-size:cover; background-position:center;
     display:flex; align-items:center; justify-content:center;
-    font-size:2.4rem; opacity:.9;
   }
-  .character-card-photo.has-image{ font-size:0; }
+  .character-card-photo::after{
+    content:''; position:absolute; inset:0;
+    background-image:url('images/logo.png');
+    background-size:52px 52px; background-position:center; background-repeat:no-repeat;
+    opacity:.55;
+  }
+  .character-card-photo.has-image::after{ display:none; }
   .character-card-body{ padding:14px 16px 16px; }
   .character-card-role{ font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); }
   .character-card-name{ font-family:var(--font-display); font-size:1.05rem; margin-top:3px; }
@@ -175,13 +183,18 @@
   .character-page{ max-width:640px; margin:0 auto; padding:32px 20px 80px; }
   .character-hero{ display:flex; gap:22px; align-items:flex-start; margin-bottom:28px; flex-wrap:wrap; }
   .character-photo{
-    width:140px; height:140px; border-radius:20px; flex-shrink:0;
+    position:relative; width:140px; height:140px; border-radius:20px; flex-shrink:0;
     background:linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
     background-size:cover; background-position:center;
-    display:flex; align-items:center; justify-content:center;
-    font-size:3rem; box-shadow:var(--shadow);
+    box-shadow:var(--shadow); overflow:hidden;
   }
-  .character-photo.has-image{ font-size:0; }
+  .character-photo::after{
+    content:''; position:absolute; inset:0;
+    background-image:url('images/logo.png');
+    background-size:66px 66px; background-position:center; background-repeat:no-repeat;
+    opacity:.55;
+  }
+  .character-photo.has-image::after{ display:none; }
   .character-heading{ flex:1; min-width:200px; padding-top:6px; }
   .character-role{ font-size:.76rem; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:6px; }
   .character-name{ font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.1rem); }
@@ -202,12 +215,17 @@
   }
   .char-popover.visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
   .char-popover-photo{
-    width:48px; height:48px; border-radius:12px; flex-shrink:0;
+    position:relative; width:48px; height:48px; border-radius:12px; flex-shrink:0;
     background:linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
-    background-size:cover; background-position:center;
-    display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+    background-size:cover; background-position:center; overflow:hidden;
   }
-  .char-popover-photo.has-image{ font-size:0; }
+  .char-popover-photo::after{
+    content:''; position:absolute; inset:0;
+    background-image:url('images/logo.png');
+    background-size:26px 26px; background-position:center; background-repeat:no-repeat;
+    opacity:.55;
+  }
+  .char-popover-photo.has-image::after{ display:none; }
   .char-popover-body{ min-width:0; }
   .char-popover-name{ font-family:var(--font-display); font-size:.95rem; line-height:1.2; }
   .char-popover-role{ font-size:.72rem; color:var(--text-faint); margin-top:2px; }
@@ -277,7 +295,7 @@
 
 <header class="site-header">
   <a href="#/" class="brand">
-    <span class="brand-emblem">🐺</span>
+    <img class="brand-emblem" src="images/logo.png" alt="">
     <span class="brand-text">
       <span class="brand-name">ОКАМИ ШИН</span>
       <span class="brand-jp">狼真</span>
@@ -348,7 +366,7 @@
   </div>
   <article class="character-page">
     <div class="character-hero">
-      <div class="character-photo" id="character-photo">🐺</div>
+      <div class="character-photo" id="character-photo"></div>
       <div class="character-heading">
         <div class="character-role" id="character-role"></div>
         <h1 class="character-name" id="character-name"></h1>
@@ -361,7 +379,7 @@
 </main>
 
 <div class="char-popover" id="char-popover">
-  <div class="char-popover-photo" id="char-popover-photo">🐺</div>
+  <div class="char-popover-photo" id="char-popover-photo"></div>
   <div class="char-popover-body">
     <div class="char-popover-name" id="char-popover-name"></div>
     <div class="char-popover-role" id="char-popover-role"></div>
@@ -448,7 +466,7 @@ function renderCharactersGallery(){
   const grid = document.getElementById('characters-grid');
   grid.innerHTML = CHARACTERS.map(c => `
     <a href="#/character/${c.slug}" class="character-card">
-      <div class="character-card-photo${c.photo ? ' has-image' : ''}" ${characterPhotoInner(c)}>${c.photo ? '' : '🐺'}</div>
+      <div class="character-card-photo${c.photo ? ' has-image' : ''}" ${characterPhotoInner(c)}></div>
       <div class="character-card-body">
         <span class="character-card-role">${c.role}</span>
         <h3 class="character-card-name">${c.name}</h3>
@@ -466,11 +484,9 @@ function renderCharacterPage(slug){
   if (c.photo) {
     photoEl.classList.add('has-image');
     photoEl.style.backgroundImage = `url('${c.photo}')`;
-    photoEl.textContent = '';
   } else {
     photoEl.classList.remove('has-image');
     photoEl.style.backgroundImage = '';
-    photoEl.textContent = '🐺';
   }
 
   document.getElementById('character-role').textContent = c.role;
@@ -747,11 +763,9 @@ function showCharPopover(link){
   if (c.photo) {
     photoEl.classList.add('has-image');
     photoEl.style.backgroundImage = `url('${c.photo}')`;
-    photoEl.textContent = '';
   } else {
     photoEl.classList.remove('has-image');
     photoEl.style.backgroundImage = '';
-    photoEl.textContent = '🐺';
   }
   document.getElementById('char-popover-name').textContent = c.name;
   document.getElementById('char-popover-role').textContent = c.role;
