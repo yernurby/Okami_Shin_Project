@@ -1,4 +1,97 @@
-# Промты для GPT — портреты персонажей
+# Промты для портретов персонажей
+
+## ⚠️ Смена стиля — тест на Шине (актуальная версия)
+
+Первая версия ниже (раздел «Манхва-стиль (устарело)») была в реалистичном корейском webtoon-стиле — решили, что это не то. Новый ориентир: **чистое TV-аниме**, в духе «Баскетбола Куроко», «Волейбола!!» и «Хоримии» — не манхва, не полу-реализм.
+
+Пока делаем **только Шина**, двумя форматами промта — под GPT и под локальный Stable Diffusion. Как только стиль подтвердится на нём, переделаю всех остальных 28 персонажей в этом же ключе (текущие манхва-промты ниже тогда просто выкинем).
+
+### Чекпойнты для Stability Matrix
+
+Не знаю точных характеристик твоей видеокарты, поэтому два варианта:
+
+**Если видеокарта не слабая (8 ГБ VRAM и больше) — рекомендую, лучшее качество:**
+- **AnimagineXL 4.0** (SDXL/Illustrious) — заточен именно под чистый современный аниме-стиль: чёткие линии, стабильная анатомия, естественные пропорции. Из всех кандидатов ближе всего к «Куроко/Хайкю» look.
+- Альтернатива: **Nova Anime XL** (Illustrious-based) — тоже отлично подходит, чуть более насыщенные цвета.
+
+**Если видеокарта слабее (4–6 ГБ VRAM) или хочется быстрее генерить — компромисс по качеству, но ощутимо быстрее:**
+- **Counterfeit-V3.0** (SD1.5) — классика жанра, огромная поддержка community/LoRA, надёжно работает на слабом железе.
+
+Все три ищутся на Civitai по названию — в Stability Matrix есть встроенный браузер моделей Civitai, можно скачать прямо оттуда.
+
+Sources: [2026 Best 6 Stable Diffusion Anime Models](https://www.aiarty.com/stable-diffusion-guide/best-stable-diffusion-anime-model.htm), [Arctenox's Simple Prompt Guide for Illustrious](https://civitai.com/articles/23210/arctenoxs-simple-prompt-guide-for-illustrious-for-comfyuisite)
+
+### Настройки генерации
+
+**Для AnimagineXL 4.0 / Nova Anime XL (SDXL/Illustrious):**
+| Параметр | Значение |
+|---|---|
+| Sampler | Euler a |
+| Steps | 28–32 |
+| CFG Scale | 5.5–6.5 (не выше 7 — иначе цвета «горят») |
+| Clip Skip | 2 |
+| Разрешение | 832×1216 (портрет) или 1024×1024 (квадрат/крупный план) |
+| VAE | sdxl-vae-fp16-fix (или встроенный в чекпойнт) |
+| Hires fix | ×1.5, denoise 0.35–0.45, апскейлер 4x-AnimeSharp |
+
+**Для Counterfeit-V3.0 (SD1.5):**
+| Параметр | Значение |
+|---|---|
+| Sampler | DPM++ 2M Karras (или Euler a) |
+| Steps | 25–30 |
+| CFG Scale | 7–8 |
+| Clip Skip | 2 |
+| Разрешение | 512×768 (портрет) |
+| VAE | vae-ft-mse-840000 (или встроенный) |
+| Hires fix | до 1024×1536, denoise 0.5, апскейлер 4x-AnimeSharp |
+
+### Негативный промт (общий для всех 5 кадров Шина)
+
+```
+lowres, worst quality, low quality, normal quality, jpeg artifacts, blurry, signature, watermark, username, artist name, text, extra fingers, fewer fingers, extra limbs, missing limbs, malformed hands, mutated hands, poorly drawn hands, poorly drawn face, deformed, disfigured, bad anatomy, bad proportions, long neck, out of frame, cropped, 3d, photorealistic, realistic, western comic, korean webtoon, semi-realistic, manhwa
+```
+
+### 1 — Промты для GPT (Шин, аниме-стиль)
+
+Стиль-тег в начале каждого промта:
+`Clean modern TV anime illustration style, in the visual tradition of Kuroko's Basketball, Haikyuu!!, and Horimiya — crisp confident linework, flat-to-soft cel shading, expressive anime-proportioned eyes, vibrant but naturalistic color palette, dynamic sports-anime energy. Strictly 2D anime illustration — not 3D render, not photorealistic, not Korean webtoon/manhwa digital painting.`
+
+1. **Портрет анфас:** Clean modern TV anime illustration style, in the visual tradition of Kuroko's Basketball, Haikyuu!!, and Horimiya — crisp confident linework, flat-to-soft cel shading, expressive anime-proportioned eyes, vibrant but naturalistic color palette. Not 3D, not photorealistic, not Korean webtoon. Front-facing portrait of a 16-year-old Japanese boy, messy dark grey hair, steel-grey eyes with a cold heavy stare, thin black rectangular glasses, sharp jawline, scar above left eyebrow, silver hoop earring in left ear. Neutral-hostile expression. Simple dark background, clean anime lineart, soft cel-shading.
+2. **Полный рост:** Same anime style as above. Full body, standing, same boy, 185cm tall, lean muscular build, wide shoulders, all-black outfit — hoodie, jeans, heavy boots. Wolf-fang pendant necklace visible at the collar. Visible geometric line tattoos and a wolf-head tattoo on both hands/forearms. Neutral stance, cold expression, clean anime lineart, flat cel-shading, simple background.
+3. **Фирменная стойка (данк):** Same anime style as above. Full body dynamic action pose, same boy mid-air during an explosive basketball dunk, power forward form, black sportswear, muscles tensed, hair flying with motion, intense focused eyes. Dramatic low-angle shot, speed lines, dynamic sports-anime energy, gym background.
+4. **Специфический кадр:** Same anime style as above. Same boy sitting alone on a gym floor at night, back against the wall, glasses off held in one hand, tired unguarded expression — a rare soft vulnerable moment. Moody blue-toned lighting through a window, quiet atmosphere, soft cel-shading.
+5. **Деталь (татуировка):** Same anime style as above. Close-up illustration of a young man's hand and forearm showing detailed geometric line tattoos and a wolf-head tattoo on the back of the hand, clean anime linework, dramatic side lighting, high detail ink linework, no text.
+
+### 2 — Промты для Stable Diffusion (Шин, теговый формат)
+
+Danbooru-теговый стиль — так анимешные чекпойнты понимают запрос лучше, чем обычным текстом. В начало можно добавить `masterpiece, best quality, very aesthetic, absurdres,` (для Illustrious/AnimagineXL) или `masterpiece, best quality, highres,` (для Counterfeit/SD1.5).
+
+1. **Портрет анфас:**
+```
+masterpiece, best quality, very aesthetic, 1boy, solo, portrait, close-up, messy dark grey hair, steel grey eyes, cold sharp gaze, thin black rectangular glasses, scar above left eyebrow, silver hoop earring, left ear, sharp jawline, neutral hostile expression, simple dark background, clean lineart, cel shading, modern shounen anime style
+```
+2. **Полный рост:**
+```
+masterpiece, best quality, very aesthetic, 1boy, solo, full body, standing, tall, muscular, messy dark grey hair, steel grey eyes, glasses, all black outfit, black hoodie, black jeans, heavy boots, wolf fang necklace, geometric line tattoos, wolf head tattoo on hand, hands in pockets, cold expression, simple background, clean lineart, cel shading
+```
+3. **Фирменная стойка (данк):**
+```
+masterpiece, best quality, very aesthetic, 1boy, solo, full body, dynamic action pose, mid-air, basketball dunk, power forward, black sportswear, intense focused expression, hair motion, muscular arms, dramatic low angle, speed lines, gym background, dynamic sports anime, cel shading
+```
+4. **Специфический кадр:**
+```
+masterpiece, best quality, very aesthetic, 1boy, solo, sitting on gym floor, back against wall, night, holding glasses, glasses off, tired expression, vulnerable, soft lighting, black hoodie, moonlight through window, quiet atmosphere, cel shading
+```
+5. **Деталь (татуировка):**
+```
+masterpiece, best quality, very aesthetic, close-up, hand, forearm, detailed tattoo, geometric line tattoo, wolf head tattoo, dark ink on skin, dramatic lighting, high detail linework, no text, clean lineart
+```
+
+---
+
+## Манхва-стиль (устарело, ждёт переделки)
+
+Всё ниже — первая версия в реалистичном корейском webtoon/manhwa-стиле. Как только новый аниме-стиль подтвердится на Шине выше, этот раздел будет полностью переписан для всех 29 персонажей в новом ключе.
 
 Стиль: **реалистичный манхва-арт** (корейский webtoon/manhwa digital painting) — полу-реалистичные пропорции (не чиби), чистая линия, мягкий cel-shading с плавными тенями, кинематографичный свет, высокая детализация. Каждый промт ниже уже содержит этот тег стилистики — можно копировать по одному прямо в GPT.
 
