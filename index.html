@@ -82,6 +82,9 @@
     transition:transform .2s ease, border-color .2s ease;
   }
   .icon-btn:hover{ transform:scale(1.07); border-color:var(--accent); }
+  .header-nav{ display:flex; align-items:center; gap:18px; }
+  .header-nav-link{ text-decoration:none; color:var(--text-muted); font-size:.86rem; letter-spacing:.02em; transition:color .2s ease; }
+  .header-nav-link:hover{ color:var(--accent); }
 
   .progress-bar{
     position:fixed; top:0; left:0; height:3px; width:0%;
@@ -109,14 +112,6 @@
     box-shadow:var(--shadow); padding:clamp(24px,4vw,42px);
     margin:0 auto 52px; max-width:900px;
   }
-  .synopsis h2{ font-family:var(--font-display); font-size:1.55rem; margin-bottom:16px; }
-  .synopsis p{ color:var(--text-muted); line-height:1.85; margin-bottom:14px; font-family:var(--font-body); font-size:1.02rem; }
-  .threads{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin:26px 0; }
-  .thread{ background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:18px; }
-  .thread-icon{ font-size:1.3rem; }
-  .thread h3{ font-size:.92rem; margin:8px 0 6px; font-family:var(--font-ui); }
-  .thread p{ font-size:.84rem; color:var(--text-faint); line-height:1.55; margin:0; }
-  .premise{ text-align:center; font-style:italic; color:var(--accent); font-weight:600; margin-top:8px !important; }
 
   /* ---------- chapters grid ---------- */
   .chapters-section{ padding:0 20px 90px; max-width:1120px; margin:0 auto; }
@@ -149,6 +144,73 @@
   .chapter-card-summary{ font-size:.87rem; color:var(--text-muted); line-height:1.55; font-family:var(--font-body); flex:1; margin-bottom:12px; }
   .chapter-card-meta{ font-size:.76rem; color:var(--text-faint); border-top:1px solid var(--border); padding-top:10px; display:flex; justify-content:space-between; }
   .more-note{ text-align:center; color:var(--text-faint); font-size:.85rem; margin-top:34px; line-height:1.6; }
+
+  /* ---------- characters gallery ---------- */
+  .characters-section{ padding:clamp(40px,7vw,72px) 20px 90px; max-width:1120px; margin:0 auto; }
+  .characters-intro{ text-align:center; max-width:560px; margin:0 auto 36px; }
+  .characters-intro h1{ font-family:var(--font-display); font-size:clamp(1.9rem,5vw,2.6rem); margin-bottom:10px; }
+  .characters-intro p{ color:var(--text-faint); font-size:.9rem; line-height:1.6; }
+  .characters-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:18px; }
+  .character-card{
+    display:flex; flex-direction:column; overflow:hidden;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
+    text-decoration:none; color:inherit; box-shadow:var(--shadow);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .character-card:hover{ transform:translateY(-4px); box-shadow:0 16px 36px rgba(0,0,0,.15); }
+  .character-card-photo{
+    position:relative; aspect-ratio:1/1;
+    background:linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
+    background-size:cover; background-position:center;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.4rem; opacity:.9;
+  }
+  .character-card-photo.has-image{ font-size:0; }
+  .character-card-body{ padding:14px 16px 16px; }
+  .character-card-role{ font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); }
+  .character-card-name{ font-family:var(--font-display); font-size:1.05rem; margin-top:3px; }
+  .character-card-name-jp{ font-size:.72rem; color:var(--text-faint); }
+
+  /* ---------- character detail page ---------- */
+  .character-page{ max-width:640px; margin:0 auto; padding:32px 20px 80px; }
+  .character-hero{ display:flex; gap:22px; align-items:flex-start; margin-bottom:28px; flex-wrap:wrap; }
+  .character-photo{
+    width:140px; height:140px; border-radius:20px; flex-shrink:0;
+    background:linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
+    background-size:cover; background-position:center;
+    display:flex; align-items:center; justify-content:center;
+    font-size:3rem; box-shadow:var(--shadow);
+  }
+  .character-photo.has-image{ font-size:0; }
+  .character-heading{ flex:1; min-width:200px; padding-top:6px; }
+  .character-role{ font-size:.76rem; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:6px; }
+  .character-name{ font-family:var(--font-display); font-size:clamp(1.6rem,4vw,2.1rem); }
+  .character-name-jp{ color:var(--text-faint); font-size:.95rem; margin-top:2px; }
+  .character-params{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .character-param{ background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:7px 12px; font-size:.78rem; }
+  .character-param b{ color:var(--text-faint); font-weight:500; margin-right:5px; }
+  .character-bio{ font-family:var(--font-body); font-size:1.02rem; line-height:1.85; color:var(--text-muted); }
+
+  /* ---------- character hover/tap popover (used inside chapter text) ---------- */
+  .char-link{ color:inherit; text-decoration:underline; text-decoration-style:dotted; text-decoration-color:var(--accent); text-underline-offset:3px; cursor:pointer; }
+  .char-popover{
+    position:fixed; z-index:80; width:230px; padding:14px;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); display:flex; gap:12px; align-items:center;
+    opacity:0; transform:translateY(4px); pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease;
+  }
+  .char-popover.visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .char-popover-photo{
+    width:48px; height:48px; border-radius:12px; flex-shrink:0;
+    background:linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
+    background-size:cover; background-position:center;
+    display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+  }
+  .char-popover-photo.has-image{ font-size:0; }
+  .char-popover-body{ min-width:0; }
+  .char-popover-name{ font-family:var(--font-display); font-size:.95rem; line-height:1.2; }
+  .char-popover-role{ font-size:.72rem; color:var(--text-faint); margin-top:2px; }
 
   /* ---------- reader ---------- */
   .reader-topbar{
@@ -221,7 +283,10 @@
       <span class="brand-jp">狼真</span>
     </span>
   </a>
-  <button class="icon-btn" id="theme-toggle" aria-label="Переключить тему">🌙</button>
+  <nav class="header-nav">
+    <a href="#/characters" class="header-nav-link">Персонажи</a>
+    <button class="icon-btn" id="theme-toggle" aria-label="Переключить тему">🌙</button>
+  </nav>
 </header>
 
 <!-- ===================== HOME ===================== -->
@@ -231,14 +296,6 @@
     <h1 class="hero-title">ОКАМИ ШИН</h1>
     <p class="hero-quote">«Слабые уходят в страхе. Сильные — с достоинством.»<span class="author">— Кэндзи Оками</span></p>
     <div class="hero-tags" id="hero-tags"></div>
-  </section>
-
-  <section class="card synopsis">
-    <h2>О истории</h2>
-    <p id="synopsis-text-1"></p>
-    <p id="synopsis-text-2"></p>
-    <div class="threads" id="threads"></div>
-    <p class="premise" id="premise"></p>
   </section>
 
   <section class="chapters-section">
@@ -273,6 +330,44 @@
   </nav>
 </main>
 
+<!-- ===================== CHARACTERS GALLERY ===================== -->
+<main class="view" id="view-characters">
+  <section class="characters-section">
+    <div class="characters-intro">
+      <h1>Персонажи</h1>
+      <p>Только те, кто уже появился в опубликованных главах — без забегания вперёд.</p>
+    </div>
+    <div class="characters-grid" id="characters-grid"></div>
+  </section>
+</main>
+
+<!-- ===================== CHARACTER PAGE ===================== -->
+<main class="view" id="view-character">
+  <div class="reader-topbar">
+    <a href="#/characters" class="back-link">← Все персонажи</a>
+  </div>
+  <article class="character-page">
+    <div class="character-hero">
+      <div class="character-photo" id="character-photo">🐺</div>
+      <div class="character-heading">
+        <div class="character-role" id="character-role"></div>
+        <h1 class="character-name" id="character-name"></h1>
+        <div class="character-name-jp" id="character-name-jp"></div>
+        <div class="character-params" id="character-params"></div>
+      </div>
+    </div>
+    <p class="character-bio" id="character-bio"></p>
+  </article>
+</main>
+
+<div class="char-popover" id="char-popover">
+  <div class="char-popover-photo" id="char-popover-photo">🐺</div>
+  <div class="char-popover-body">
+    <div class="char-popover-name" id="char-popover-name"></div>
+    <div class="char-popover-role" id="char-popover-role"></div>
+  </div>
+</div>
+
 <footer class="site-footer">
   Оками Шин (狼真) · фан-проект вебтуна · <a href="https://github.com/yernurby/Okami_Shin_Project" target="_blank" rel="noopener">исходники на GitHub</a>
 </footer>
@@ -296,16 +391,8 @@
 const STORY = {
   title: "Оками Шин",
   titleJp: "狼真",
-  genres: ["Вебтун", "Школьная драма", "Улица", "Романтика", "Боевик"],
-  volume: "~150–200 глав + эпилог",
-  synopsis1: "16-летний Шин Оками переезжает в Токио с мамой и маленькой сестрой. Снаружи — бандит с татуировками и звериным взглядом. Внутри — человек, который всю жизнь защищал семью и не умел доверять никому, кроме них.",
-  synopsis2: "В элитной школе Кайсей его принудительно записывают в баскетбольную секцию. Через уличного игрока он впервые находит что-то своё. Параллельно — ищет правду об отце, погибшем два года назад.",
-  threads: [
-    { icon: "🧩", title: "Мозаика Кэндзи", text: "Правда об отце собирается по кускам." },
-    { icon: "🏀", title: "Команда", text: "Шин находит людей, которые становятся своими." },
-    { icon: "❤️", title: "Рэй", text: "Единственная без связи с судьбой. Просто выбрала сама." }
-  ],
-  premise: "Кем кажешься vs кто ты есть → одиночество разрушает стену → прошлое не определяет"
+  genres: ["Школьная драма", "Улица", "Романтика"],
+  volume: "~150–200 глав + эпилог"
 };
 
 let CHAPTERS = [];
@@ -327,6 +414,107 @@ async function fetchChapterMarkdown(ch){
 }
 
 /* =========================================================================
+   CHARACTERS
+   Публичные карточки персонажей — data/characters.json.
+   Это НЕ полная карточка из characters/*.md (там сюжетные спойлеры,
+   дуга, будущие цитаты) — только то, что уместно раньше времени.
+   Чтобы добавить персонажа: дописать объект в data/characters.json,
+   index.html трогать не нужно.
+   ========================================================================= */
+
+let CHARACTERS = [];
+let CHAR_MATCHERS = []; // [{name, slug}] отсортировано по длине имени убыв., для линковки в тексте
+
+async function loadCharacters(){
+  const res = await fetch('data/characters.json');
+  if (!res.ok) throw new Error('characters fetch failed: ' + res.status);
+  CHARACTERS = await res.json();
+  CHAR_MATCHERS = [];
+  CHARACTERS.forEach(c => {
+    (c.matchNames || []).forEach(n => CHAR_MATCHERS.push({ name: n, slug: c.slug }));
+  });
+  CHAR_MATCHERS.sort((a, b) => b.name.length - a.name.length);
+}
+
+function getCharacter(slug){
+  return CHARACTERS.find(c => c.slug === slug);
+}
+
+function characterPhotoInner(c, fallback){
+  return c.photo ? `style="background-image:url('${c.photo}')"` : '';
+}
+
+function renderCharactersGallery(){
+  const grid = document.getElementById('characters-grid');
+  grid.innerHTML = CHARACTERS.map(c => `
+    <a href="#/character/${c.slug}" class="character-card">
+      <div class="character-card-photo${c.photo ? ' has-image' : ''}" ${characterPhotoInner(c)}>${c.photo ? '' : '🐺'}</div>
+      <div class="character-card-body">
+        <span class="character-card-role">${c.role}</span>
+        <h3 class="character-card-name">${c.name}</h3>
+        ${c.nameJp ? `<span class="character-card-name-jp">${c.nameJp}</span>` : ''}
+      </div>
+    </a>
+  `).join('');
+}
+
+function renderCharacterPage(slug){
+  const c = getCharacter(slug);
+  if (!c) { location.hash = '#/characters'; return; }
+
+  const photoEl = document.getElementById('character-photo');
+  if (c.photo) {
+    photoEl.classList.add('has-image');
+    photoEl.style.backgroundImage = `url('${c.photo}')`;
+    photoEl.textContent = '';
+  } else {
+    photoEl.classList.remove('has-image');
+    photoEl.style.backgroundImage = '';
+    photoEl.textContent = '🐺';
+  }
+
+  document.getElementById('character-role').textContent = c.role;
+  document.getElementById('character-name').textContent = c.name;
+  document.getElementById('character-name-jp').textContent = c.nameJp || '';
+  document.getElementById('character-params').innerHTML = (c.params || [])
+    .map(p => `<span class="character-param"><b>${p.label}</b>${p.value}</span>`).join('');
+  document.getElementById('character-bio').textContent = c.bio;
+
+  document.title = `${c.name} · ${STORY.title}`;
+}
+
+/* ---- имена персонажей как ссылки внутри текста главы ----
+   Работает в два шага, чтобы не пересекаться с escapeHtml/inline():
+   1) linkCharacterNamesInBlock() на сыром тексте параграфа оборачивает
+      первое (на всю главу) вхождение имени персонажа в текстовый
+      маркер @@CHAR:slug:Имя@@ (такая последовательность не встречается
+      в обычной прозе, так что коллизий не будет).
+   2) resolveCharacterMarkers() вызывается в конце inline(), уже после
+      экранирования и bold/italic, и превращает маркер в <a>. */
+function linkCharacterNamesInBlock(text, seenSlugs){
+  let result = text;
+  for (const { name, slug } of CHAR_MATCHERS) {
+    if (seenSlugs.has(slug)) continue;
+    const idx = result.indexOf(name);
+    if (idx === -1) continue;
+    const before = result[idx - 1];
+    const after = result[idx + name.length];
+    const isWordChar = ch => !!ch && /[а-яёa-z0-9]/i.test(ch);
+    if (isWordChar(before) || isWordChar(after)) continue;
+    result = result.slice(0, idx) + `@@CHAR:${slug}:${name}@@` + result.slice(idx + name.length);
+    seenSlugs.add(slug);
+  }
+  return result;
+}
+function resolveCharacterMarkers(html){
+  return html.replace(/@@CHAR:([a-z0-9-]+):([^@]*)@@/g, (m, slug, name) => {
+    if (!getCharacter(slug)) return name;
+    return `<a href="#/character/${slug}" class="char-link" data-char="${slug}">${name}</a>`;
+  });
+}
+
+
+/* =========================================================================
    MARKDOWN-LITE RENDERER
    Рендерит .md файлы глав как есть (реальный markdown, без спецсинтаксиса):
    # / ## заголовки, --- разделители, *курсив*, **жирный**,
@@ -340,6 +528,7 @@ function inline(str){
   let s = escapeHtml(str);
   s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  s = resolveCharacterMarkers(s);
   return s;
 }
 function renderChapterHtml(md){
@@ -353,6 +542,7 @@ function renderChapterHtml(md){
   const text = lines.join('\n');
   const blocks = text.split(/\n\s*\n+/);
   let html = '';
+  const seenSlugs = new Set();
   for (const raw of blocks) {
     const block = raw.trim();
     if (!block) continue;
@@ -381,7 +571,7 @@ function renderChapterHtml(md){
       html += `<p class="chapter-end">${inline(stripped)}</p>`;
       continue;
     }
-    const paraLines = block.split('\n').map(l => inline(l.trim()));
+    const paraLines = block.split('\n').map(l => inline(linkCharacterNamesInBlock(l.trim(), seenSlugs)));
     html += `<p>${paraLines.join('<br>')}</p>`;
   }
   return html;
@@ -393,16 +583,6 @@ function renderChapterHtml(md){
 
 function renderStoryInfo(){
   document.getElementById('hero-tags').innerHTML = STORY.genres.map(g => `<span class="tag">${g}</span>`).join('');
-  document.getElementById('synopsis-text-1').textContent = STORY.synopsis1;
-  document.getElementById('synopsis-text-2').textContent = STORY.synopsis2;
-  document.getElementById('threads').innerHTML = STORY.threads.map(t => `
-    <div class="thread">
-      <span class="thread-icon">${t.icon}</span>
-      <h3>${t.title}</h3>
-      <p>${t.text}</p>
-    </div>
-  `).join('');
-  document.getElementById('premise').textContent = STORY.premise;
 }
 
 function renderHome(){
@@ -488,17 +668,31 @@ async function renderChapter(num){
 
 function route(){
   const hash = location.hash || '#/';
-  const match = hash.match(/^#\/chapter\/(\d+)/);
-  const home = document.getElementById('view-home');
-  const chapterView = document.getElementById('view-chapter');
+  const chapterMatch = hash.match(/^#\/chapter\/(\d+)/);
+  const characterMatch = hash.match(/^#\/character\/([a-z0-9-]+)/);
+  const isCharacterList = hash === '#/characters';
 
-  if (match) {
-    renderChapter(match[1]);
-    home.classList.remove('active');
-    chapterView.classList.add('active');
+  const views = {
+    home: document.getElementById('view-home'),
+    chapter: document.getElementById('view-chapter'),
+    characters: document.getElementById('view-characters'),
+    character: document.getElementById('view-character'),
+  };
+  Object.values(views).forEach(v => v.classList.remove('active'));
+  hidePopover();
+
+  if (chapterMatch) {
+    renderChapter(chapterMatch[1]);
+    views.chapter.classList.add('active');
+  } else if (characterMatch) {
+    renderCharacterPage(characterMatch[1]);
+    views.character.classList.add('active');
+  } else if (isCharacterList) {
+    renderCharactersGallery();
+    views.characters.classList.add('active');
+    document.title = `Персонажи · ${STORY.title}`;
   } else {
-    home.classList.add('active');
-    chapterView.classList.remove('active');
+    views.home.classList.add('active');
     document.title = `${STORY.title} · ${STORY.titleJp}`;
   }
   window.scrollTo(0, 0);
@@ -539,6 +733,71 @@ function updateProgressVisibility(){
   bar.style.width = '0%';
 }
 
+/* ---- попап-подсказка для .char-link: hover на десктопе, тап на мобильных ---- */
+let popoverOpenSlug = null;
+let popoverHideTimer = null;
+
+function showCharPopover(link){
+  const slug = link.getAttribute('data-char');
+  const c = getCharacter(slug);
+  if (!c) return;
+  popoverOpenSlug = slug;
+
+  const photoEl = document.getElementById('char-popover-photo');
+  if (c.photo) {
+    photoEl.classList.add('has-image');
+    photoEl.style.backgroundImage = `url('${c.photo}')`;
+    photoEl.textContent = '';
+  } else {
+    photoEl.classList.remove('has-image');
+    photoEl.style.backgroundImage = '';
+    photoEl.textContent = '🐺';
+  }
+  document.getElementById('char-popover-name').textContent = c.name;
+  document.getElementById('char-popover-role').textContent = c.role;
+
+  const pop = document.getElementById('char-popover');
+  const rect = link.getBoundingClientRect();
+  const popWidth = 230;
+  let left = rect.left;
+  if (left + popWidth > window.innerWidth - 12) left = window.innerWidth - popWidth - 12;
+  if (left < 12) left = 12;
+  pop.style.left = left + 'px';
+  pop.style.top = (rect.bottom + 8) + 'px';
+  pop.classList.add('visible');
+}
+function hidePopover(){
+  popoverOpenSlug = null;
+  const pop = document.getElementById('char-popover');
+  if (pop) pop.classList.remove('visible');
+}
+function initCharPopover(){
+  const pop = document.getElementById('char-popover');
+
+  document.addEventListener('mouseover', (e) => {
+    const link = e.target.closest('.char-link');
+    if (!link) return;
+    clearTimeout(popoverHideTimer);
+    showCharPopover(link);
+  });
+  document.addEventListener('mouseout', (e) => {
+    if (!e.target.closest('.char-link')) return;
+    popoverHideTimer = setTimeout(hidePopover, 150);
+  });
+  pop.addEventListener('mouseenter', () => clearTimeout(popoverHideTimer));
+  pop.addEventListener('mouseleave', () => { popoverHideTimer = setTimeout(hidePopover, 150); });
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.char-link');
+    if (!link) { hidePopover(); return; }
+    const slug = link.getAttribute('data-char');
+    const alreadyOpenForThis = popoverOpenSlug === slug && pop.classList.contains('visible');
+    if (alreadyOpenForThis) return; // второй тап/клик — даём ссылке сработать
+    e.preventDefault();
+    showCharPopover(link);
+  });
+}
+
 function initKeyboardNav(){
   document.addEventListener('keydown', (e) => {
     if (!document.getElementById('view-chapter').classList.contains('active')) return;
@@ -559,14 +818,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initScrollProgress();
   initKeyboardNav();
+  initCharPopover();
 
   try {
-    await loadManifest();
+    await Promise.all([loadManifest(), loadCharacters()]);
     renderHome();
     route();
   } catch (e) {
     document.getElementById('chapters-grid').innerHTML =
-      '<p class="loading-note">Не удалось загрузить список глав. Проверьте соединение и обновите страницу.</p>';
+      '<p class="loading-note">Не удалось загрузить данные. Проверьте соединение и обновите страницу.</p>';
   }
 });
 </script>
