@@ -1,345 +1,314 @@
-# Промты для портретов персонажей
+# Промты для портретов персонажей (аниме, чистые кадры)
 
-## ⚠️ Смена стиля — тест на Шине (актуальная версия)
+Цель — **чистые отдельные картинки** каждого персонажа (без текста, имени и цифр на изображении, на нейтральном фоне): их можно и на сайт положить, и позже скармливать ИИ как референсы для манги/вебтуна.
 
-Первая версия ниже (раздел «Манхва-стиль (устарело)») была в реалистичном корейском webtoon-стиле — решили, что это не то. Новый ориентир: **чистое TV-аниме**, в духе «Баскетбола Куроко», «Волейбола!!» и «Хоримии» — не манхва, не полу-реализм.
+## Как этим пользоваться — «якорь → вариации»
 
-Пока делаем **только Шина**, двумя форматами промта — под GPT и под локальный Stable Diffusion. Как только стиль подтвердится на нём, переделаю всех остальных 28 персонажей в этом же ключе (текущие манхва-промты ниже тогда просто выкинем).
+Главное — **консистентность**: один персонаж = одно лицо во всех кадрах. Чисто текстовые промты «плывут» (пять генераций = пять разных людей), поэтому:
 
-### Чекпойнты для Stability Matrix
+1. Берёшь промт **«1. Лицо анфас»** персонажа → генеришь несколько раз → выбираешь ОДИН кадр, где он «тот самый». Это **якорь**.
+2. Скармливаешь якорь в GPT **как картинку** и берёшь промт **«2. Полный рост»**, **«3…»** и т.д. — там вместо описания внешности уже стоит «тот же персонаж, что на картинке». Так лицо/волосы/тату не меняются.
+3. Готовые кадры — на сайт (поле `cover` персонажа) и в архив референсов.
 
-Не знаю точных характеристик твоей видеокарты, поэтому два варианта:
+**Каждый кадр — без фона-сцены и без текста.** Данные каноничные (не то, что было на старых листах): Шин 185/85, Огата 211/84 и т.д.
 
-**Если видеокарта не слабая (8 ГБ VRAM и больше) — рекомендую, лучшее качество:**
-- **AnimagineXL 4.0** (SDXL/Illustrious) — заточен именно под чистый современный аниме-стиль: чёткие линии, стабильная анатомия, естественные пропорции. Из всех кандидатов ближе всего к «Куроко/Хайкю» look.
-- Альтернатива: **Nova Anime XL** (Illustrious-based) — тоже отлично подходит, чуть более насыщенные цвета.
+### Копипаст-обёртка (добавляй к каждому промту)
 
-**Если видеокарта слабее (4–6 ГБ VRAM) или хочется быстрее генерить — компромисс по качеству, но ощутимо быстрее:**
-- **Counterfeit-V3.0** (SD1.5) — классика жанра, огромная поддержка community/LoRA, надёжно работает на слабом железе.
+- **[СТИЛЬ]** (в начало): `Clean modern TV anime illustration, in the visual tradition of Kuroko's Basketball, Haikyuu!! and Horimiya — crisp confident linework, soft cel-shading, expressive anime eyes, naturalistic colour palette. Strictly 2D anime — not 3D, not photorealistic, not Korean webtoon/manhwa.`
+- **[ЧИСТО]** (в конец): `Plain neutral light-grey background, character only, no text, no letters, no numbers, no captions, no logo, no watermark, single clean view.`
 
-Все три ищутся на Civitai по названию — в Stability Matrix есть встроенный браузер моделей Civitai, можно скачать прямо оттуда.
+Для видов 2–5, когда уже есть якорь, добавляй фразу `the same character as in the uploaded reference image, identical face, hair and tattoos` вместо повторного описания внешности.
 
-Sources: [2026 Best 6 Stable Diffusion Anime Models](https://www.aiarty.com/stable-diffusion-guide/best-stable-diffusion-anime-model.htm), [Arctenox's Simple Prompt Guide for Illustrious](https://civitai.com/articles/23210/arctenoxs-simple-prompt-guide-for-illustrious-for-comfyuisite)
-
-### Настройки генерации
-
-**Для AnimagineXL 4.0 / Nova Anime XL (SDXL/Illustrious):**
-| Параметр | Значение |
-|---|---|
-| Sampler | Euler a |
-| Steps | 28–32 |
-| CFG Scale | 5.5–6.5 (не выше 7 — иначе цвета «горят») |
-| Clip Skip | 2 |
-| Разрешение | 832×1216 (портрет) или 1024×1024 (квадрат/крупный план) |
-| VAE | sdxl-vae-fp16-fix (или встроенный в чекпойнт) |
-| Hires fix | ×1.5, denoise 0.35–0.45, апскейлер 4x-AnimeSharp |
-
-**Для Counterfeit-V3.0 (SD1.5):**
-| Параметр | Значение |
-|---|---|
-| Sampler | DPM++ 2M Karras (или Euler a) |
-| Steps | 25–30 |
-| CFG Scale | 7–8 |
-| Clip Skip | 2 |
-| Разрешение | 512×768 (портрет) |
-| VAE | vae-ft-mse-840000 (или встроенный) |
-| Hires fix | до 1024×1536, denoise 0.5, апскейлер 4x-AnimeSharp |
-
-### Негативный промт (общий для всех 5 кадров Шина)
+### Негатив (для локального Stable Diffusion; в GPT не нужен)
 
 ```
-lowres, worst quality, low quality, normal quality, jpeg artifacts, blurry, signature, watermark, username, artist name, text, extra fingers, fewer fingers, extra limbs, missing limbs, malformed hands, mutated hands, poorly drawn hands, poorly drawn face, deformed, disfigured, bad anatomy, bad proportions, long neck, out of frame, cropped, 3d, photorealistic, realistic, western comic, korean webtoon, semi-realistic, manhwa
+lowres, worst quality, low quality, jpeg artifacts, blurry, signature, watermark, username, text, letters, caption, character sheet, turnaround, multiple views, frame, border, extra fingers, missing fingers, extra limbs, malformed hands, poorly drawn hands, poorly drawn face, deformed, bad anatomy, bad proportions, long neck, 3d, photorealistic, realistic, western comic, korean webtoon, manhwa, semi-realistic
 ```
 
-### 1 — Промты для GPT (Шин, аниме-стиль)
-
-Стиль-тег в начале каждого промта:
-`Clean modern TV anime illustration style, in the visual tradition of Kuroko's Basketball, Haikyuu!!, and Horimiya — crisp confident linework, flat-to-soft cel shading, expressive anime-proportioned eyes, vibrant but naturalistic color palette, dynamic sports-anime energy. Strictly 2D anime illustration — not 3D render, not photorealistic, not Korean webtoon/manhwa digital painting.`
-
-1. **Портрет анфас:** Clean modern TV anime illustration style, in the visual tradition of Kuroko's Basketball, Haikyuu!!, and Horimiya — crisp confident linework, flat-to-soft cel shading, expressive anime-proportioned eyes, vibrant but naturalistic color palette. Not 3D, not photorealistic, not Korean webtoon. Front-facing portrait of a 16-year-old Japanese boy, messy dark grey hair, steel-grey eyes with a cold heavy stare, thin black rectangular glasses, sharp jawline, scar above left eyebrow, silver hoop earring in left ear. Neutral-hostile expression. Simple dark background, clean anime lineart, soft cel-shading.
-2. **Полный рост:** Same anime style as above. Full body, standing, same boy, 185cm tall, lean muscular build, wide shoulders, all-black outfit — hoodie, jeans, heavy boots. Wolf-fang pendant necklace visible at the collar. Visible geometric line tattoos and a wolf-head tattoo on both hands/forearms. Neutral stance, cold expression, clean anime lineart, flat cel-shading, simple background.
-3. **Фирменная стойка (данк):** Same anime style as above. Full body dynamic action pose, same boy mid-air during an explosive basketball dunk, power forward form, black sportswear, muscles tensed, hair flying with motion, intense focused eyes. Dramatic low-angle shot, speed lines, dynamic sports-anime energy, gym background.
-4. **Специфический кадр:** Same anime style as above. Same boy sitting alone on a gym floor at night, back against the wall, glasses off held in one hand, tired unguarded expression — a rare soft vulnerable moment. Moody blue-toned lighting through a window, quiet atmosphere, soft cel-shading.
-5. **Деталь (татуировка):** Same anime style as above. Close-up illustration of a young man's hand and forearm showing detailed geometric line tattoos and a wolf-head tattoo on the back of the hand, clean anime linework, dramatic side lighting, high detail ink linework, no text.
-
-### 2 — Промты для Stable Diffusion (Шин, теговый формат)
-
-Danbooru-теговый стиль — так анимешные чекпойнты понимают запрос лучше, чем обычным текстом. В начало можно добавить `masterpiece, best quality, very aesthetic, absurdres,` (для Illustrious/AnimagineXL) или `masterpiece, best quality, highres,` (для Counterfeit/SD1.5).
-
-1. **Портрет анфас:**
-```
-masterpiece, best quality, very aesthetic, 1boy, solo, portrait, close-up, messy dark grey hair, steel grey eyes, cold sharp gaze, thin black rectangular glasses, scar above left eyebrow, silver hoop earring, left ear, sharp jawline, neutral hostile expression, simple dark background, clean lineart, cel shading, modern shounen anime style
-```
-2. **Полный рост:**
-```
-masterpiece, best quality, very aesthetic, 1boy, solo, full body, standing, tall, muscular, messy dark grey hair, steel grey eyes, glasses, all black outfit, black hoodie, black jeans, heavy boots, wolf fang necklace, geometric line tattoos, wolf head tattoo on hand, hands in pockets, cold expression, simple background, clean lineart, cel shading
-```
-3. **Фирменная стойка (данк):**
-```
-masterpiece, best quality, very aesthetic, 1boy, solo, full body, dynamic action pose, mid-air, basketball dunk, power forward, black sportswear, intense focused expression, hair motion, muscular arms, dramatic low angle, speed lines, gym background, dynamic sports anime, cel shading
-```
-4. **Специфический кадр:**
-```
-masterpiece, best quality, very aesthetic, 1boy, solo, sitting on gym floor, back against wall, night, holding glasses, glasses off, tired expression, vulnerable, soft lighting, black hoodie, moonlight through window, quiet atmosphere, cel shading
-```
-5. **Деталь (татуировка):**
-```
-masterpiece, best quality, very aesthetic, close-up, hand, forearm, detailed tattoo, geometric line tattoo, wolf head tattoo, dark ink on skin, dramatic lighting, high detail linework, no text, clean lineart
-```
+Локальные чекпойнты/настройки для SD — в конце файла (если будешь генерить не в GPT).
 
 ---
 
-## Манхва-стиль (устарело, ждёт переделки)
+# ПЕРСОНАЖИ НА САЙТЕ
 
-Всё ниже — первая версия в реалистичном корейском webtoon/manhwa-стиле. Как только новый аниме-стиль подтвердится на Шине выше, этот раздел будет полностью переписан для всех 29 персонажей в новом ключе.
+## Оками Шин — 185 см / 85 кг · PF/центр-гибрид
+**Внешность (для якоря):** teenage boy (~17), messy dark-grey hair, steel-grey eyes with a cold heavy stare, thin black rectangular glasses, scar above the left eyebrow, silver hoop earring in the left ear, sharp jawline, lean muscular 185 cm build, geometric line tattoos and a wolf-head tattoo on hands/forearms, thin wolf-fang pendant necklace.
 
-Стиль: **реалистичный манхва-арт** (корейский webtoon/manhwa digital painting) — полу-реалистичные пропорции (не чиби), чистая линия, мягкий cel-shading с плавными тенями, кинематографичный свет, высокая детализация. Каждый промт ниже уже содержит этот тег стилистики — можно копировать по одному прямо в GPT.
+1. **Лицо анфас (паспорт):** front-facing head-and-shoulders, neutral-cold expression, looking straight at the viewer, glasses on.
+2. **Полный рост:** full body, standing, all-black outfit — hoodie, jeans, heavy boots, pendant visible at the collar, arms relaxed, cold expression.
+3. **Фирменная поза:** mid-air in an explosive basketball dunk, black sportswear, muscles tensed, hair flying with motion, intense focused eyes, dramatic low angle.
+4. **Момент:** sitting alone against a gym wall at night, glasses off in one hand, tired unguarded expression, moody blue rim-light.
+5. **Деталь:** close-up of the hand and forearm showing the geometric line tattoos and wolf-head tattoo, high-detail ink linework.
 
-Для каждого персонажа — 5 промтов:
-1. **Портрет анфас** — только лицо, для карточки в галерее
-2. **Полный рост** — нейтральная поза, для страницы персонажа
-3. **Фирменная стойка** — поза/момент, который отражает характер
-4. **Специфический кадр** — сцена или ракурс, привязанные к конкретной детали персонажа
-5. **Деталь** — крупный план отличительной черты (татуировка, аксессуар, руки и т.д.)
+## Оками Юки — 166 см · мать
+**Внешность:** 37-year-old woman who looks younger, warm dark-chestnut hair in a low bun with loose strands framing the face, grey-green eyes, soft oval face, gentle smile with faint smile-lines, slender graceful build.
 
-Порядок ниже: сначала персонажи, уже показанные на сайте (актуальны для генерации в первую очередь), затем — те, кто пока скрыт (`revealed:false` в `data/characters.json`), но карточка уже готова на будущее.
+1. **Лицо анфас:** front-facing, gentle reassuring expression, soft warm light.
+2. **Полный рост:** standing, cosy cream sweater and soft-grey skirt, calm posture, hands folded gently.
+3. **Фирменная поза:** standing in a kitchen doorway, a light towel over one shoulder, calm steady posture, tired-but-warm expression — quiet strength.
+4. **Момент:** sitting alone, hands in her lap, a rare unguarded flash of sadness before she catches herself.
+5. **Деталь:** close-up of hands folding laundry, a simple silver ring, gentle domestic warmth.
 
----
+## Оками Аой — ~128 см · сестра, 8 лет
+**Внешность:** 8-year-old girl, dark ash-grey hair (same shade as her older brother) in two pigtails with bright-pink ties, big grey-blue eyes, round childlike face with chubby cheeks, bright contagious smile.
 
-## Уже на сайте
+1. **Лицо анфас:** front-facing, big bright smile, cheerful.
+2. **Полный рост:** standing in a bright-pink dress and sneakers, clutching a grey plush wolf against her chest.
+3. **Фирменная поза:** her teasing gesture — pulling down one lower eyelid with a finger and sticking out her tongue, one foot lifted, playful.
+4. **Момент:** sitting cross-legged, head tilted, staring intently at someone off-frame with unusually perceptive eyes for her age — reading a feeling.
+5. **Деталь:** close-up of small hands hugging the worn grey plush wolf tightly.
 
-### Оками Шин (狼真)
+## Сэо Харуки — 182 см · капитан, разыгрывающий
+**Внешность:** 17–18-year-old boy, short neat black hair combed back, dark-brown clear composed eyes, mature symmetrical features (looks older than his age), lean athletic point-guard build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 16-year-old Japanese boy, dark grey messy tousled hair, steel-grey eyes with a cold heavy stare, thin black-framed glasses, sharp jawline, scar above left eyebrow, silver hoop earring in left ear. Neutral-hostile expression. Clean dark background, soft cinematic lighting, cel-shading, high detail.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 185cm, lean dense muscle build, wide shoulders, all black clothing — hoodie, jeans, heavy boots. Wolf-fang pendant necklace tucked under collar. Visible tattoos on both forearms and hands (geometric lines, wolf head, pine forest silhouette). Neutral stance, arms relaxed, cold expression. Full-length, soft studio lighting.
-3. Full body dynamic pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid-air during an explosive basketball dunk, power forward form, black streetwear-style basketball gear, muscles tensed, hair messy in motion, intense focused eyes. Dramatic low-angle shot, dust/motion lines, cinematic gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy sitting alone on a gym floor at night, back against the wall, black hoodie, glasses off in his hand, tired unguarded expression — a rare soft, vulnerable moment. Moody blue-toned lighting through a window.
-5. Extreme close-up detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up of the back of a young man's right hand and forearm showing detailed geometric line tattoos, a wolf head tattoo on the back of the hand, and a pine forest tattoo running up the forearm. Skin texture visible, dramatic side lighting, high detail ink work.
+1. **Лицо анфас:** front-facing, controlled composed expression.
+2. **Полный рост:** standing in a perfectly pressed school uniform, disciplined upright posture.
+3. **Фирменная поза:** in basketball uniform mid-command, one arm raised directing teammates, sharp focused captain's expression.
+4. **Момент:** sitting alone on an empty gym floor after a loss, elbows on knees, mask of control dropped — genuinely tired and uncertain.
+5. **Деталь:** close-up of hands gripping a basketball, knuckles a little rougher than expected for a "perfect" student.
 
-### Оками Юки (狼雪)
+## Ямагути Масаки — 186 см · тяжёлый форвард
+**Внешность:** 17–18-year-old boy, dark-brown short messy just-off-practice hair, sharp dark-brown eyes that burn when angry, square jaw, thick eyebrows, powerfully built stocky muscular frame, thick neck, wide shoulders.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 37-year-old Japanese woman who looks younger than her age, warm dark chestnut hair in a low bun with loose strands framing her face, grey-green eyes, soft oval face, gentle reassuring smile with faint smile-lines. Soft warm lighting, cel-shading, high detail.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same woman, 165cm, slender graceful build, wearing a cozy cream-colored sweater and soft-grey skirt. Warm, calm posture, hands folded gently. Soft indoor lighting, pastel color palette.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same woman standing in a kitchen doorway with a light kitchen towel over one shoulder, calm steady posture, tired but warm expression — quiet strength holding a household together. Soft golden-hour window light.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same woman sitting alone, hands folded in her lap, a rare unguarded moment where sadness briefly shows through her usual composure before she catches herself. Muted, quiet lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a woman's hands folding laundry, simple silver ring, soft warm light, gentle domestic atmosphere, high detail skin and fabric texture.
+1. **Лицо анфас:** front-facing, intense guarded expression.
+2. **Полный рост:** standing, disheveled untucked uniform with rolled-up sleeves, confrontational stance, arms crossed.
+3. **Фирменная поза:** boxing out under the basket, aggressive powerful posture, gritted teeth, sweat visible.
+4. **Момент:** alone in an empty gym at night, taking one final quiet shot just for himself, calm unguarded expression very unlike his usual intensity.
+5. **Деталь:** close-up of a muscular calloused right hand and forearm gripping a basketball tightly.
 
-### Оками Аой (狼葵)
+## Такаги Широ — 199 см · центровой
+**Внешность:** 17–18-year-old boy, pale ash-silver short neat hair (rare natural colour), light grey-blue eyes, a large face with unexpectedly soft gentle features, massively tall broad build, slightly hunched shoulders from shyness.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 8-year-old Japanese girl, dark ash-grey hair (same shade as her older brother) in two pigtails with bright pink hair ties, big grey-blue eyes, round childlike face with chubby cheeks, bright contagious smile. Bright warm lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same girl, ~128cm, thin and light frame but moving with confidence, wearing a bright pink dress and sneakers, clutching a grey plush toy wolf tightly against her chest. Cheerful bright pastel background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same girl mid-action doing her signature teasing gesture — pulling down her lower eyelid with one finger and sticking out her tongue at the viewer, playful mischievous expression, one foot lifted. Bright, energetic lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same girl sitting cross-legged on a floor, head tilted, staring intently at someone off-frame with unusually perceptive, focused eyes for her age — reading someone's feelings. Soft indoor lighting, quiet moment.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up of small hands hugging a worn grey plush wolf toy tightly, soft fabric texture, warm cozy lighting, high detail.
+1. **Лицо анфас:** front-facing, calm quiet expression with a small rare warm smile.
+2. **Полный рост:** standing, oversized hoodie and wide sweatpants, gentle-giant presence, shoulders slightly hunched.
+3. **Фирменная поза:** standing fully upright and unhunched for once, blocking a shot at the rim with a massive wingspan, focused calm dominance.
+4. **Момент:** sitting on the floor of a small home surrounded by several younger foster siblings, gentle protective posture, soft content half-smile.
+5. **Деталь:** close-up of an enormous hand next to a basketball for scale, calm relaxed grip.
 
-### Сэо Харуки (瀬尾春樹)
+## Хаяма Даики — 190 см · лёгкий форвард
+**Внешность:** 17-year-old boy, deep dark-blue hair with a metallic sheen (rare natural colour), long side-swept bangs near the eyes, dark grey-blue eyes, elegant symmetrical features, high cheekbones, slender long-limbed build with a dancer's grace.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 17-18-year-old Japanese boy, short neat black hair combed back, dark brown clear composed eyes, symmetrical mature features, looks older than his age. Controlled, composed expression. Clean lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 182cm, lean athletic point-guard build, perfectly pressed school uniform, standing straight with disciplined posture. Neutral school hallway background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy in basketball uniform mid-command, one arm raised directing teammates on court, sharp focused captain's expression, economical controlled movement. Dynamic gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy sitting alone on an empty gym floor after a loss, elbows on knees, mask of control dropped for a moment, genuinely tired and uncertain expression. Dim, quiet evening gym lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a young man's hands — knuckles slightly rougher than expected for a "perfect" student, gripping a basketball. High detail skin texture, dramatic side lighting.
+1. **Лицо анфас:** front-facing, cool distant thoughtful expression.
+2. **Полный рост:** standing, dark hoodie, slim jeans and a long dark coat, relaxed elegant posture.
+3. **Фирменная поза:** mid-air in a rotating dunk that blends contemporary-dance movement with basketball, fluid graceful lines, hair and clothing flowing.
+4. **Момент:** alone in an empty dance studio after practice, mid-dance movement, reflected in a wall mirror, quiet private moment.
+5. **Деталь:** close-up profile — dark-blue hair strands falling over a focused eye, subtle metallic sheen, rim light.
 
-### Ямагути Масаки (山口正樹)
+## Хосино Кенто — 179 см · атакующий защитник
+**Внешность:** 17-year-old boy, light-chestnut hair with golden highlights, messy beach-tousled texture with slightly wavy ends, warm brown eyes with a playful glint, open friendly face, natural easy smile that reaches his eyes.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 17-18-year-old Japanese boy, dark brown short messy hair (just-off-practice look), sharp dark brown eyes that burn when angry, square jaw, thick eyebrows. Intense, guarded expression. Hard directional lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 186cm, powerfully built stocky muscular frame, thick neck, wide shoulders, disheveled untucked school uniform with rolled-up sleeves. Confrontational stance, arms crossed.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid-motion boxing out under the basket, aggressive powerful posture, gritted teeth, sweat visible, calloused hand visible. Intense gym lighting, motion blur.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy alone in an empty gym at night, taking one final quiet shot just for himself, calm unguarded expression very different from his usual intensity. Moonlight through gym windows.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a muscular right hand and forearm with visible calluses from years of weight training and basketball, gripping a basketball tightly. High detail skin texture, dramatic lighting.
+1. **Лицо анфас:** front-facing, warm genuine smile.
+2. **Полный рост:** standing, bright colourful hoodie (the only teammate who wears colour), jeans, baseball cap, relaxed easygoing stance, big grin.
+3. **Фирменная поза:** mid jump-shot, explosive quick release, joyful determined expression, bright energy.
+4. **Момент:** sitting alone on a bench, knee heavily bandaged after an injury, staring at the floor with his smile gone — quiet private sadness.
+5. **Деталь:** close-up of warm brown eyes crinkled in a genuine easy smile, golden-highlighted hair falling loosely.
 
-### Такаги Широ (高木史郎)
+## Нагата Юто — 184 см · лёгкий форвард (запас)
+**Внешность:** 17-year-old boy, neat black hair combed to one side, narrow calm dark-brown eyes, a symmetrical pleasant unremarkable face, average tidy athletic build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 17-18-year-old Japanese boy, pale ash-silver short neat hair (rare natural color), light grey-blue eyes, large face with unexpectedly soft gentle features. Calm, quiet expression, small rare warm smile. Soft even lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 199cm, massively tall broad build, slightly hunched shoulders from shyness making him seem smaller than he is, wearing an oversized hoodie and wide sweatpants. Gentle giant presence.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy standing fully upright and unhunched for once, blocking a shot at the rim with massive wingspan, focused calm expression, dominant defensive presence. Dynamic gym lighting from below.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy sitting on the floor of a small home surrounded by several younger foster siblings, gentle protective posture, soft content half-smile. Warm domestic lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up of an enormous hand next to a basketball for scale, pale skin, calm relaxed grip. High detail, soft lighting.
+1. **Лицо анфас:** front-facing, faint neutral smile.
+2. **Полный рост:** standing in a neatly worn practice uniform, relaxed unassuming posture, holding a small food container.
+3. **Фирменная поза:** mid defensive slide, solid dependable stance, focused calm concentration — steady fundamentals, nothing flashy.
+4. **Момент:** in a home kitchen, carefully packing a homemade bento into a cloth wrap, quiet focused domestic moment.
+5. **Деталь:** close-up of neatly arranged homemade onigiri in an open lunch box, faint steam.
 
-### Хаяма Даики (葉山大輝)
+## Огата Кэй — 211 см / 84 кг · центровой (1 курс)
+**Внешность:** 16-year-old boy, pale near-white soft messy hair over the forehead, light-grey sleepy kind eyes, an elongated gentle face, extremely tall and thin lanky build, noticeably hunched shoulders from shyness.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 17-year-old Japanese boy, deep dark blue hair with metallic sheen (rare natural color), long side-swept bangs falling near his eyes, dark grey-blue eyes, elegant symmetrical features, high cheekbones. Cool, distant, thoughtful expression. Soft cinematic lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 190cm, slender graceful long-limbed build, dark hoodie and slim jeans, long dark coat, relaxed elegant posture with dancer's grace. Cool moody lighting.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid-air performing a rotating basketball dunk that blends contemporary dance movement with basketball athleticism, fluid graceful lines, hair and clothing flowing with motion. Dramatic spotlight, dust particles.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy alone in an empty dance studio after basketball practice, mid-contemporary-dance movement, reflected in a wall mirror, quiet private moment nobody else sees. Soft blue evening light.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up profile of dark blue hair strands falling over a focused eye, soft natural metallic sheen visible, cinematic rim lighting, high detail hair texture.
+1. **Лицо анфас:** front-facing, shy gentle expression, slightly hunched even in a headshot.
+2. **Полный рост:** standing, oversized practice jersey and shorts, hunched, holding a rice ball, gentle giant.
+3. **Фирменная поза:** standing fully upright for once — newfound confidence, unhunched, towering, calm determined blocking position under the rim.
+4. **Момент:** sitting on a bench after practice, eating a fourth rice ball while looking mournfully at his own thin arms, gentle self-deprecating humour.
+5. **Деталь:** close-up of a large hand holding a small rice ball, comedic scale contrast.
 
-### Хосино Кенто (星野健人)
+## Мацуи Соу — 175 см · разыгрывающий (1 курс)
+**Внешность:** 16-year-old boy, thick dark-chestnut hair sticking up in every direction, big round light-brown eyes with a perpetually surprised look, round chubby-cheeked face, slightly protruding ears, the shortest and smallest build on the team.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 17-year-old Japanese boy, light chestnut hair with golden highlights, messy beach-tousled texture, slightly wavy ends, warm brown eyes with a playful glint, open friendly face, natural easy smile that reaches his eyes. Bright warm lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 179cm, lean athletic shooting-guard build, bright colorful hoodie (only teammate who wears color), jeans, baseball cap. Relaxed easygoing stance, big grin.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid-jump-shot, explosive quick release, joyful determined expression, bright energy radiating from the pose. Dynamic gym lighting, motion lines.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy sitting alone on a bench, knee heavily bandaged after an injury, staring at the floor with his smile gone for once — quiet, private, unguarded sadness. Dim locker room lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on warm brown eyes crinkled in a genuine easy smile, golden-highlighted hair falling loosely, soft warm backlighting, high detail.
+1. **Лицо анфас:** front-facing, wide surprised eyes.
+2. **Полный рост:** standing in an ill-fitting uniform (long sleeves, loose shorts), slightly clumsy off-balance stance.
+3. **Фирменная поза:** mid basketball pass, body suddenly fluid and precise (completely unlike his clumsy off-court self), sharp focused eyes.
+4. **Момент:** tripping over a gym bench, arms flailing comedically, wide-eyed mid-fall.
+5. **Деталь:** close-up of messy thick hair sticking up at odd angles.
 
-### Нагата Юто (永田勇人)
+## Мория Кадзуя — тренер, ~45 лет
+**Внешность:** 45-year-old man, short greying dark hair, stocky solid build, a weathered composed face, calm steady eyes that make people not want to ask him to repeat himself.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 17-year-old Japanese boy, neat black hair combed to one side, narrow calm dark brown eyes, symmetrical unremarkable pleasant face, faint neutral smile. Even soft lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 184cm, average tidy athletic build, neatly worn basketball practice uniform, relaxed unassuming posture holding a small food container. Plain gym background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid basketball defensive slide, solid dependable stance, focused calm concentration, no flashy movement — just steady fundamentals. Even gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy in a home kitchen, carefully packing a homemade bento box into a cloth wrap, quiet focused domestic moment, soft content expression. Warm kitchen lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on neatly arranged homemade rice balls (onigiri) in an open lunch box, steam faintly visible, warm appetizing lighting, high food detail.
+1. **Лицо анфас:** front-facing, neutral composed expression.
+2. **Полный рост:** standing in a team tracksuit, whistle around the neck, arms crossed, authoritative stance.
+3. **Фирменная поза:** mid-shout with a whistle raised to his mouth, sharp commanding gesture toward the court.
+4. **Момент:** at the edge of the court, clipboard in hand, quietly watching one specific player with a calculating gaze.
+5. **Деталь:** close-up of a whistle against a tracksuit collar, a weathered hand holding a clipboard nearby.
 
-### Огата Кэй (緒方圭)
+## Фудзивара Рэн — 195 см · уличный игрок, 20–21
+**Внешность:** young man (20–21), dark almost-black hair shorter on the sides and longer on top, messy tousled texture, dark-brown eyes with a sharp playful squint, narrow face, light stubble, a quick slightly cocky grin, lean wiry explosive build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 16-year-old Japanese boy, pale near-white soft messy hair falling over his forehead, light grey sleepy kind eyes, elongated gentle face, shy slightly hunched posture even in a headshot. Soft warm lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 203cm, extremely tall and thin lanky build (looks underfed despite constant eating), noticeably hunched shoulders from shyness, oversized practice jersey and shorts, holding a rice ball. Gentle giant, soft lighting.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy standing fully upright for once — newfound confidence, unhunched, towering over everyone around him, calm determined expression, blocking position under the rim. Dramatic low-angle gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy sitting on a bench after practice, eating a fourth rice ball while looking mournfully at his own thin arms, self-deprecating gentle humor in his expression. Warm locker-room lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a large hand holding a small rice ball (onigiri), comedic scale contrast, soft warm lighting, high detail.
+1. **Лицо анфас:** front-facing, cocky playful grin.
+2. **Полный рост:** standing, oversized streetwear hoodie, wide shorts, worn-out sneakers, backwards cap, a basketball under one arm, relaxed confident street stance.
+3. **Фирменная поза:** mid-air in a powerful street-style dunk, wild free-spirited energy, motion streaks.
+4. **Момент:** leaning against a chain-link fence, a basketball spinning on one finger, watching someone play with sharp assessing eyes.
+5. **Деталь:** close-up of rough calloused hands gripping a worn, heavily-used outdoor basketball.
 
-### Мацуи Соу (松井蒼)
+## Мидзусима Хана — одноклассница
+**Внешность:** 16-year-old girl, light-blonde dyed straight shoulder-length hair, bright open expressive eyes, a warm easy smile, symmetrical youthful face, average height.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 16-year-old Japanese boy, thick dark chestnut hair sticking up in every direction despite attempts to flatten it, big round light brown eyes with a perpetually surprised look, round face with chubby cheeks, slightly protruding ears. Bright soft lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 175cm, the shortest and smallest build on the team, ill-fitting uniform with long sleeves and loose shorts, slightly clumsy off-balance stance. Bright gym background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid basketball pass, body suddenly fluid and precise (completely different from his clumsy off-court self), sharp focused eyes tracking the play, confident quick motion. Dynamic gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy tripping over a gym bench, arms flailing comedically, wide-eyed surprised expression, mid-fall. Bright, slightly comedic lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on messy thick hair sticking up at odd angles no matter how it's brushed, soft directional lighting, high detail hair texture.
-
-### Мория Кадзуя
-
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 45-year-old Japanese man, short greying dark hair, stocky solid build, weathered composed face, calm steady eyes that make people not want to ask him to repeat himself. Neutral gym lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, short and compact but powerfully built, tracksuit with team logo, whistle hanging around his neck, arms crossed, authoritative stance. Gym background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man mid-shout with a whistle raised to his mouth, sharp commanding gesture toward the court, intense focused coach energy. Dynamic gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man standing at the edge of the court, clipboard in hand, quietly watching one specific player with a calculating, evaluating gaze. Even gym lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a whistle resting against a tracksuit collar, weathered hand nearby holding a clipboard, soft even lighting.
-
-### Фудзивара Рэн (藤原蓮)
-
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 20-21-year-old Japanese young man, dark almost-black hair shorter on the sides and longer on top, messy tousled texture, dark brown eyes with a sharp playful squint, narrow face, light stubble, quick slightly cocky grin. Golden late-afternoon lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same young man, 195cm, lean wiry explosive build, oversized streetwear hoodie, wide shorts, worn-out sneakers, backwards cap, basketball under one arm, relaxed confident street stance. Outdoor asphalt court background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same young man mid-air performing a powerful street-style dunk, wild free-spirited energy, dramatic urban outdoor court background at sunset, crowd silhouettes watching. Dynamic lighting, motion streaks.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same young man leaning against a chain-link fence around an outdoor court at dusk, basketball spinning on one finger, watching someone play with sharp assessing eyes. Warm sunset lighting, urban atmosphere.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on rough calloused hands gripping a worn, heavily-used outdoor basketball, deep old callus texture, warm directional light, high detail.
-
-### Мидзусима Хана
-
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 16-year-old Japanese girl, light blonde hair (dyed, straight, shoulder-length), bright open expressive eyes, warm easy open smile, symmetrical youthful face. Bright classroom lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same girl, average height, school uniform worn neatly but casually, relaxed confident posture, one hand on her hip. Bright school hallway background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same girl mid-gesture during a debate club argument, one hand raised, sharp confident expression, quick wit visible in her posture. Bright indoor lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same girl leaning forward over a classroom desk toward someone off-frame, direct curious body language, unbothered easy expression. Warm afternoon classroom light through windows.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on light blonde hair catching afternoon sunlight, bright attentive eyes, soft warm lighting, high detail.
+1. **Лицо анфас:** front-facing, warm open smile.
+2. **Полный рост:** standing in a neatly-but-casually worn school uniform, relaxed confident posture, one hand on her hip.
+3. **Фирменная поза:** mid-gesture during a debate-club argument, one hand raised, sharp confident expression.
+4. **Момент:** leaning forward over a classroom desk toward someone off-frame, direct curious body language, unbothered easy expression.
+5. **Деталь:** close-up of light-blonde hair catching afternoon sunlight, bright attentive eyes.
 
 ---
 
-## Пока скрыты на сайте (`revealed:false`) — карточка готова заранее
+# ПОКА СКРЫТЫ НА САЙТЕ (`revealed:false`) — на будущее
 
-### Оками Кэндзи (狼健二)
+## Оками Кэндзи — 182 см · отец (34)
+**Внешность:** 34-year-old man, dark-grey short tousled hair (the shade his son inherited), a steel-grey heavy stare, hard weathered rugged features, an old scar above the left eye, tanned weather-beaten skin, strong wiry hunter's build, traditional Japanese-style tattoos on the arms (carp, dragon, wave motifs).
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 34-year-old Japanese man, dark grey short tousled hair (same shade his son inherited), steel-grey heavy stare, hard weathered rugged features, old scar above left eye, tanned weather-beaten skin. Warm but heavy lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 182cm, strong wiry hunter's build, dark work jacket, thick trousers, heavy boots, old hunting vest, traditional Japanese-style tattoos visible on his arms (carp, dragon, wave motifs). Confident grounded stance.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man crouched at the edge of a forest examining tracks in the dirt, focused hunter's instinct, calm capable expression. Dappled forest lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man kneeling beside a young boy, hand resting warmly on the child's shoulder, both looking out at a forest view, quiet warm family moment. Golden hour forest lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a forearm covered in traditional Japanese-style tattoos — carp, dragon, and wave motifs — weathered tanned skin, dramatic side lighting, high detail ink work.
+1. **Лицо анфас:** front-facing, warm-but-heavy steady stare.
+2. **Полный рост:** standing, dark work jacket, thick trousers, heavy boots, old hunting vest, confident grounded stance.
+3. **Фирменная поза:** crouched at the edge of a forest examining tracks in the dirt, focused hunter's instinct.
+4. **Момент:** kneeling beside a young boy, a hand resting warmly on the child's shoulder, both looking out at a forest — quiet warm family moment.
+5. **Деталь:** close-up of a forearm covered in traditional Japanese-style tattoos (carp, dragon, wave), weathered tanned skin.
 
-### Кавамура Горо (川村五郎)
+## Кавамура Горо — 172 см · охотник (57)
+**Внешность:** 57-year-old man, short coarse fully-grey hair with a few dark remnants, sharp narrow deep-brown eyes, a hard weathered deeply-lined face, a rare unexpectedly kind smile, short but wiry lean-muscular build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 57-year-old Japanese man, short coarse fully grey hair with a few dark-grey remnants, sharp narrow deep-brown eyes, hard weathered deeply-lined face, rare unexpectedly kind smile. Natural outdoor light, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 172cm, short but wiry lean muscular build, thick work trousers and jacket, heavy boots, old hunting vest. Grounded solid stance in a forest clearing.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man setting a trap in the forest undergrowth, weathered hands working with practiced precision, focused calm expression. Soft forest morning light.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting by a campfire at night, poking the fire with a stick, sharing a quiet unembellished story, firelight on his weathered face. Warm campfire glow.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on large weathered hands covered in old scars, calluses and burn marks, veins visible, dramatic warm lighting, high detail skin texture.
+1. **Лицо анфас:** front-facing, weathered, rare kind smile.
+2. **Полный рост:** standing in a forest clearing, thick work jacket and trousers, heavy boots, old hunting vest, grounded solid stance.
+3. **Фирменная поза:** setting a trap in the forest undergrowth, weathered hands working with practised precision.
+4. **Момент:** sitting by a campfire at night, poking the fire with a stick, sharing a quiet unembellished story, firelight on his face.
+5. **Деталь:** close-up of large weathered hands covered in old scars, calluses and burn marks.
 
-### Кирю Масато (桐生雅人)
+## Кирю Масато — 180 см · попечитель (48, антагонист)
+**Внешность:** 48-year-old man, dark hair with distinguished grey streaks always perfectly styled, sharp calm dark-brown eyes, groomed handsome mature features, a practised polished smile, a fit trim build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 48-year-old Japanese man, dark hair with distinguished grey streaks, always perfectly styled, sharp calm dark brown eyes, groomed handsome mature features, practiced polished smile. Clean corporate lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 180cm, fit trim build for his age, expensive tailored dark suit, composed formal posture, hands clasped in front. Clean office or gallery background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man standing at a window looking out over a city skyline, one hand in his pocket, calm calculating expression, quiet controlled power. Cool blue evening city light.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting at a polished desk, rubbing his right thumb absently against his bare left ring finger, distracted for a moment from his usual composure. Soft desk lamp lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a well-groomed hand, thumb resting against a bare ring finger with a faint pale mark where a ring used to be, soft focused lighting, high detail.
+1. **Лицо анфас:** front-facing, polished controlled smile.
+2. **Полный рост:** standing in an expensive tailored dark suit, composed formal posture, hands clasped in front.
+3. **Фирменная поза:** standing at a window over a city skyline, one hand in his pocket, calm calculating expression, quiet controlled power.
+4. **Момент:** sitting at a polished desk, rubbing his thumb absently against his bare left ring finger, distracted for a moment.
+5. **Деталь:** close-up of a well-groomed hand, thumb against a bare ring finger with a faint pale mark where a ring used to be.
 
-### Нишимура Кодзи (西村光二)
+## Нишимура Кодзи — 174 см · верный человек бати (45)
+**Внешность:** 45-year-old man, dark hair greying at the temples kept short, warm brown eyes, a stocky good-natured face with laugh-lines, an easy genuine smile, solid build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 45-year-old Japanese man, dark hair greying at the temples, kept short, warm brown eyes, stocky good-natured face with laugh-lines, easy genuine smile. Warm natural lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 174cm, stocky solid build, simple casual clothes, relaxed friendly posture, holding a small wrapped food parcel. Warm neutral background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man sitting at a small table, sliding a wrapped rice ball across to someone off-frame, warm inviting gesture, gentle smile. Soft indoor cafe lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man laughing warmly mid-conversation, head slightly tilted back, genuine unguarded joy — a rare warmth compared to those around him. Warm afternoon light.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on hands wrapping a rice ball with pickled plum filling in cloth, careful practiced motion, warm soft kitchen lighting.
+1. **Лицо анфас:** front-facing, warm genuine smile.
+2. **Полный рост:** standing in simple casual clothes, relaxed friendly posture, holding a small wrapped food parcel.
+3. **Фирменная поза:** sitting at a small table, sliding a wrapped rice ball across to someone off-frame, a warm inviting gesture.
+4. **Момент:** laughing warmly mid-conversation, head tilted back, genuine unguarded joy.
+5. **Деталь:** close-up of hands wrapping a pickled-plum rice ball in cloth, careful practised motion.
 
-### Ватанабэ Сора (渡辺蒼)
+## Ватанабэ Сора — 180 см · верный человек бати (42)
+**Внешность:** 42-year-old man, short black hair, dark-grey sharp eyes, an angular expressionless face, a composed neutral gaze, lean upright build with rigid posture.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 42-year-old Japanese man, short black hair, dark grey sharp eyes, angular expressionless face, composed neutral gaze. Cool flat lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 180cm, lean upright build, straight rigid posture, simple neat dark clothing, standing perfectly still. Plain neutral background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man standing by a window with arms crossed, facing slightly away, guarded closed-off posture, sharp eyes reflected faintly in the glass. Cool evening window light.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man standing perfectly still against a wall during a meeting, arms crossed, listening intently while giving away nothing on his face. Neutral indoor lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on crossed arms and a rigid, controlled posture, sharp tailored dark sleeve fabric, cool even lighting, high detail.
+1. **Лицо анфас:** front-facing, composed expressionless neutral gaze.
+2. **Полный рост:** standing perfectly still, straight rigid posture, simple neat dark clothing.
+3. **Фирменная поза:** standing by a window with arms crossed, facing slightly away, guarded closed-off posture.
+4. **Момент:** standing perfectly still against a wall during a meeting, arms crossed, listening intently while giving away nothing.
+5. **Деталь:** close-up of crossed arms and a rigid controlled posture, sharp tailored dark sleeve.
 
-### Харада Кэн (原田賢)
+## Харада Кэн — 172 см · верный человек бати (58)
+**Внешность:** 58-year-old man, short grey cropped hair, deep-set dark-brown eyes, a heavily time-worn weathered face, a slow deliberate expression, a slow-moving solidly-built older frame.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 58-year-old Japanese man, short grey cropped hair, deep-set dark brown eyes, heavily time-worn weathered face, slow deliberate expression. Warm low lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 172cm, slow-moving solidly-built older frame, simple traditional dark clothing, heavy grounded stance. Neutral warm-toned background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man seated cross-legged, hand raised mid-gesture as if about to speak, everyone around him implied to be waiting in silence, quiet unshakable authority. Warm low tatami-room lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man pausing mid-sentence, gaze turned to the side as if carefully choosing his next word, deep contemplative stillness. Soft warm interior light.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a deeply lined, weathered older face, eyes turned thoughtfully to the side, warm directional lighting, high skin-texture detail.
+1. **Лицо анфас:** front-facing, slow deliberate weathered expression.
+2. **Полный рост:** standing in simple traditional dark clothing, heavy grounded stance.
+3. **Фирменная поза:** seated cross-legged, a hand raised mid-gesture as if about to speak, quiet unshakable authority.
+4. **Момент:** pausing mid-sentence, gaze turned to the side as if carefully choosing his next word, deep contemplative stillness.
+5. **Деталь:** close-up of a deeply lined weathered older face, eyes turned thoughtfully to the side.
 
-### Мидзуно Такэси (水野猛)
+## Мидзуно Такэси — 172 см · предатель (46)
+**Внешность:** 46-year-old man, thinning dark messy hair, brown darting evasive eyes that never hold a gaze long, a puffy tired face with under-eye bags (looks older than his age), a slightly overweight soft build, a tense nervous posture.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 46-year-old Japanese man, thinning dark messy hair, brown darting evasive eyes that never hold a direct gaze long, puffy tired face with under-eye bags, looks older than his age. Slightly harsh unflattering lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 172cm, slightly overweight soft build, neat but cheap clothing that tries not to stand out, tense nervous posture, shoulders slightly hunched. Plain background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man glancing nervously over his shoulder while walking quickly, tense hurried body language, avoiding eye contact. Dim street lighting at dusk.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting alone at a small restaurant counter late at night, hands wrapped tightly around a cup, anxious unsettled expression. Dim warm restaurant lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on nervous hands fidgeting with a napkin, slightly trembling, soft dim lighting, high detail skin texture.
+1. **Лицо анфас:** front-facing, evasive darting eyes, uneasy expression.
+2. **Полный рост:** standing in neat but cheap clothing that tries not to stand out, shoulders slightly hunched, tense.
+3. **Фирменная поза:** glancing nervously over his shoulder while walking quickly, tense hurried body language.
+4. **Момент:** sitting alone at a small restaurant counter late at night, hands wrapped tightly around a cup, anxious.
+5. **Деталь:** close-up of nervous hands fidgeting with a napkin, slightly trembling.
 
-### Судзуки Рэй (鈴木零)
+## Судзуки Рэй — 190 см · предатель (44)
+**Внешность:** 44-year-old man, short coarse dark hair, brown flat expressionless eyes that look at people like objects, a broad face with almost no visible emotion, a massive broad-shouldered heavy build.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 44-year-old Japanese man, short coarse dark hair, brown flat expressionless eyes that look at people like objects, broad face with almost no visible emotion. Flat neutral lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 190cm, massive broad-shouldered heavy build, plain practical dark clothing with nothing decorative, still emotionless stance. Plain grey background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man standing immovable in a doorway, arms at his sides, completely still and unreadable, imposing sheer physical presence. Harsh overhead lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting alone in a sparse room, staring at nothing in particular, total emotional blankness, unsettling stillness. Cold flat lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on an enormous flat expressionless face, dull brown eyes fixed on the viewer, harsh even lighting, high detail.
+1. **Лицо анфас:** front-facing, total emotional blankness, dull fixed eyes.
+2. **Полный рост:** standing, plain practical dark clothing with nothing decorative, still emotionless stance.
+3. **Фирменная поза:** standing immovable in a doorway, arms at his sides, completely still and unreadable, imposing physical presence.
+4. **Момент:** sitting alone in a sparse room, staring at nothing, unsettling stillness.
+5. **Деталь:** close-up of an enormous flat expressionless face, dull brown eyes.
 
-### Хосино Рэй (星野零)
+## Хосино Рэй — 168 см · любовный интерес (15)
+**Внешность:** 15-year-old girl, long straight deep-black hair with a faint blue sheen in a low ponytail, large calm thoughtful dark-brown eyes, a soft oval face, a gentle warm smile, a slender graceful figure.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 15-year-old Japanese girl, long straight deep black hair with a faint blue sheen, low ponytail, large calm thoughtful dark brown eyes, soft oval face, gentle warm smile. Soft natural window lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same girl, 168cm, slender graceful figure, oversized chunky-knit pastel-lavender sweater, long soft skirt, calm poised stance. Soft library background, pastel tones.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same girl sitting quietly reading a book by a window, calm composed posture, undisturbed by anything around her, serene inner steadiness. Soft afternoon light through windows.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same girl setting down a cup of coffee quietly next to someone without a word, gentle attentive expression, quietly perceptive body language. Warm soft library lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on long black hair with a subtle blue sheen catching soft window light, calm dark eyes, gentle soft-focus lighting, high detail hair texture.
+1. **Лицо анфас:** front-facing, gentle calm smile.
+2. **Полный рост:** standing, an oversized chunky-knit pastel-lavender sweater and a long soft skirt, calm poised stance.
+3. **Фирменная поза:** sitting quietly reading a book by a window, calm composed posture, serene inner steadiness.
+4. **Момент:** setting a cup of coffee down quietly next to someone without a word, gentle attentive expression.
+5. **Деталь:** close-up of long black hair with a subtle blue sheen catching soft window light, calm dark eyes.
 
-### Эгути Рэйто (江口零斗)
+## Эгути Рэйто — 178 см · новичок-мажор (15, Year 2)
+**Внешность:** 15-year-old boy, light-chestnut hair perfectly styled and clearly maintained, sharp amber-brown eyes with an appraising look, clean symmetrical almost-too-perfect features, average build with perfect posture.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 15-year-old Japanese boy, light chestnut hair perfectly styled and clearly maintained, sharp amber-brown eyes with an appraising look, clean symmetrical almost-too-perfect features. Bright polished lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same boy, 178cm, average build with perfect posture that makes him seem taller, custom-tailored school uniform, expensive limited-edition sneakers, confident chin-up stance. Clean bright background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same boy mid basketball point-guard move, trying hard to look effortlessly in control, sharp determined expression that's more genuine than usual. Dynamic gym lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same boy standing frozen, at a rare loss for words, uncertain expression breaking through his usual polished confidence. Even indoor lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on perfectly styled light chestnut hair and a pair of brand-new limited-edition sneakers, glossy polished detail, bright studio lighting.
+1. **Лицо анфас:** front-facing, appraising slightly haughty look.
+2. **Полный рост:** standing, custom-tailored school uniform, expensive limited-edition sneakers, confident chin-up stance.
+3. **Фирменная поза:** mid point-guard move, trying hard to look effortlessly in control, a sharp determined expression more genuine than usual.
+4. **Момент:** standing frozen, at a rare loss for words, uncertainty breaking through his usual polished confidence.
+5. **Деталь:** close-up of perfectly styled light-chestnut hair and a pair of brand-new limited-edition sneakers.
 
-### Танака Рю (田中龍)
+## Танака Рю — 178 см · бывший человек бати (44)
+**Внешность:** 44-year-old man, dark hair with grey at the temples in a short neat cut, calm slightly tired dark-brown eyes, rugged defined features, a small old scar on the chin, a solidly-built strong frame, tanned skin, strong hands.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 44-year-old Japanese man, dark hair with visible grey at the temples, short neat cut, calm slightly tired dark brown eyes, rugged defined features, small old scar on the chin. Warm even lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, 178cm, solidly built strong frame, simple dark work trousers, shirt and jacket, sturdy grounded stance, tanned skin, strong hands. Neutral background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man standing in a doorway surrounded by several children of different ages, protective steady presence, calm quiet authority. Warm home lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting at a dinner table, speaking plainly and without excuses to someone across from him, direct honest expression. Warm kitchen lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a strong weathered hand with faint old scars from physical labor, resting on a wooden table, warm directional lighting, high detail.
+1. **Лицо анфас:** front-facing, calm slightly tired steady expression.
+2. **Полный рост:** standing, simple dark work trousers, shirt and jacket, a sturdy grounded stance.
+3. **Фирменная поза:** standing in a doorway surrounded by several children of different ages, a protective steady presence.
+4. **Момент:** sitting at a dinner table, speaking plainly and without excuses to someone across from him, direct honest expression.
+5. **Деталь:** close-up of a strong weathered hand with faint old scars, resting on a wooden table.
 
-### Сэо Такэси
+## Сэо Такэси — отец Харуки (55)
+**Внешность:** 55-year-old man, dark hair greying neatly, tall composed features, a strict evaluating gaze, always impeccably groomed.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 55-year-old Japanese man, dark hair greying neatly, tall composed features, strict evaluating gaze, always impeccably groomed. Cool formal lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, tall and fit for his age, always in a sharp business suit, rigid formal upright posture. Clean formal background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man standing across from a younger man, arms behind his back, posture radiating silent scrutiny and unspoken judgment. Cool office lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting stiffly, a flicker of something softer crossing his usually strict face as he almost — but not quite — says he's proud. Warm low evening lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a sharply pressed suit collar and tie, composed jawline, cool even studio lighting, high fabric detail.
+1. **Лицо анфас:** front-facing, strict evaluating gaze.
+2. **Полный рост:** standing in a sharp business suit, rigid formal upright posture.
+3. **Фирменная поза:** standing across from a younger man, arms behind his back, radiating silent scrutiny.
+4. **Момент:** sitting stiffly, a flicker of something softer crossing his usually strict face as he almost — but not quite — says he's proud.
+5. **Деталь:** close-up of a sharply pressed suit collar and tie, composed jawline.
 
-### Хосино Кэйта
+## Хосино Кэйта — отец Кенто (50)
+**Внешность:** 50-year-old man, neat greying hair, serious composed features, appraising steady eyes, well-groomed, fit and trim.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 50-year-old Japanese man, neat greying hair, serious composed features, appraising steady eyes, well-groomed. Cool measured lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same man, fit and trim, smart-casual clothing, straight measured posture, hands clasped behind his back. Neutral background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same man standing with arms crossed, watching someone across a room with a weighing, evaluating expression, guarded posture. Cool indoor lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same man sitting in a hospital waiting area, posture finally softening, quiet realization crossing his face. Soft fluorescent waiting-room lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a composed, measured expression slowly softening at the edges, soft directional lighting, high facial detail.
+1. **Лицо анфас:** front-facing, measured serious expression.
+2. **Полный рост:** standing in smart-casual clothing, straight measured posture, hands clasped behind his back.
+3. **Фирменная поза:** standing with arms crossed, watching someone across a room with a weighing evaluating expression.
+4. **Момент:** sitting in a hospital waiting area, posture finally softening, a quiet realization crossing his face.
+5. **Деталь:** close-up of a measured expression slowly softening at the edges.
 
-### Хосино Сацуки
+## Хосино Сацуки — мать Кенто (47)
+**Внешность:** 47-year-old woman, warm neatly-kept dark hair, kind soft eyes, a gentle well-cared-for face, an easy warm smile, average height.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 47-year-old Japanese woman, warm neatly kept dark hair, kind soft eyes, gentle well-cared-for face, easy warm smile. Soft warm lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same woman, average height, soft elegant casual clothing, warm approachable posture, hands folded gently in front. Warm neutral background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same woman gently nudging a taller man beside her with her elbow, playful warm gesture, knowing smile. Soft indoor lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same woman quietly standing beside her daughter, a supportive warm hand on her shoulder, calm reassuring presence. Warm soft home lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on a warm gentle smile with soft kind eyes, gentle even lighting, high detail.
+1. **Лицо анфас:** front-facing, easy warm smile, kind eyes.
+2. **Полный рост:** standing in soft elegant casual clothing, a warm approachable posture, hands folded gently in front.
+3. **Фирменная поза:** gently nudging a taller man beside her with her elbow, a playful warm gesture, a knowing smile.
+4. **Момент:** standing quietly beside her daughter, a supportive warm hand on the shoulder, calm reassuring presence.
+5. **Деталь:** close-up of a warm gentle smile with soft kind eyes.
 
-### Танака Мика
+## Танака Мика — жена Танаки (42)
+**Внешность:** 42-year-old woman, dark-chestnut hair in a loose practical bun, soft kind tired eyes, a round gentle face, a short soft build, usually in motion, wearing an apron.
 
-1. Front-facing portrait, realistic Korean webtoon/manhwa digital painting style. 42-year-old Japanese woman, dark chestnut hair in a loose practical bun, soft kind tired eyes, round gentle face. Warm domestic lighting, cel-shading.
-2. Full body, standing, realistic Korean webtoon/manhwa digital painting style. Same woman, short soft build, always in motion, simple practical home clothing with an apron, mid-step carrying something. Warm kitchen background.
-3. Full body pose, realistic Korean webtoon/manhwa digital painting style. Same woman setting a full plate of food down in front of someone without a word, warm nurturing gesture, gentle tired smile. Warm kitchen lighting.
-4. Specific scene, realistic Korean webtoon/manhwa digital painting style. Same woman surrounded by several children at a dinner table, calm chaos, warm exhausted happiness on her face. Bright warm dinner-table lighting.
-5. Detail shot, realistic Korean webtoon/manhwa digital painting style. Close-up on soft tired hands setting down a plate of home-cooked food, warm steam rising, cozy kitchen lighting, high detail.
+1. **Лицо анфас:** front-facing, soft kind tired expression.
+2. **Полный рост:** standing mid-step carrying something, simple practical home clothing with an apron.
+3. **Фирменная поза:** setting a full plate of food down in front of someone without a word, a warm nurturing gesture, a gentle tired smile.
+4. **Момент:** surrounded by several children at a dinner table, calm chaos, warm exhausted happiness on her face.
+5. **Деталь:** close-up of soft tired hands setting down a plate of home-cooked food, warm steam rising.
+
+---
+
+# Приложение — локальный Stable Diffusion (если не GPT)
+
+Актуально, если будешь генерить локально (Stability Matrix и т.п.), а не через GPT.
+
+**Чекпойнты (Civitai):**
+- 8 ГБ VRAM и больше (лучшее качество): **AnimagineXL 4.0** (SDXL/Illustrious) — чистый современный аниме-стиль, ближе всего к «Куроко/Хайкю». Альтернатива — **Nova Anime XL**.
+- 4–6 ГБ VRAM / быстрее: **Counterfeit-V3.0** (SD1.5).
+
+**Настройки (SDXL/Illustrious):** Euler a · 28–32 steps · CFG 5.5–6.5 · Clip Skip 2 · 832×1216 (портрет) / 1024×1024 (крупный план) · Hires ×1.5, denoise 0.35–0.45, 4x-AnimeSharp.
+**Настройки (Counterfeit/SD1.5):** DPM++ 2M Karras · 25–30 steps · CFG 7–8 · Clip Skip 2 · 512×768 · Hires до 1024×1536, denoise 0.5.
+
+**Теговый префикс:** `masterpiece, best quality, very aesthetic, absurdres, modern shounen anime style, clean lineart, cel shading, 1boy/1girl, solo, simple background` — дальше внешность персонажа тегами + вид кадра (portrait / full body / dynamic action pose / close-up).
+**Консистентность в SD:** для видов 2–5 используй тот же якорь-кадр через **IP-Adapter** или **reference ControlNet** (в GPT это заменяется загрузкой картинки-референса).
+**Негатив** — см. в начале файла.
