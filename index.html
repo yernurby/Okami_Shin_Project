@@ -299,6 +299,41 @@
   .reader-content em{ color:var(--text-muted); font-style:italic; }
   .reader-content .chapter-end{ text-align:center; font-style:italic; color:var(--text-faint); margin-top:3em; letter-spacing:.06em; }
   .reader-content .scene-image{ margin:2em 0; border-radius:2px; overflow:hidden; box-shadow:var(--shadow); }
+
+  /* --- Аудио-плеер (синтез речи) --- */
+  #view-chapter{ padding-bottom:88px; }
+  .tts-s{ cursor:pointer; border-radius:2px; transition:background .15s ease; }
+  .tts-s:hover{ background:var(--accent-soft); }
+  .reader-content .tts-active,
+  .reader-content .tts-active:hover{ background:var(--accent-soft); box-shadow:inset 0 -2px 0 var(--accent-red); }
+  .tts-bar{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:14px; z-index:60;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;
+    background:var(--bg-elevated); border:1px solid var(--border); box-shadow:var(--shadow);
+    padding:8px 10px; max-width:calc(100vw - 20px); font-family:var(--font-ui);
+  }
+  .tts-bar[hidden]{ display:none; }
+  .tts-btn{
+    font-family:var(--font-ui); font-size:.85rem; letter-spacing:.04em; text-transform:uppercase;
+    background:transparent; color:var(--text); border:1px solid var(--border);
+    padding:6px 12px; cursor:pointer; transition:.15s ease; white-space:nowrap;
+  }
+  .tts-btn:hover:not(:disabled){ color:var(--accent-red); border-color:var(--accent-red); }
+  .tts-btn.primary{ border-color:var(--accent); color:var(--accent); }
+  .tts-btn:disabled{ opacity:.35; cursor:default; }
+  .tts-bar select{
+    font-family:var(--font-ui); font-size:.8rem; background:var(--bg-card); color:var(--text);
+    border:1px solid var(--border); padding:5px 6px; max-width:150px;
+  }
+  .tts-meta{ font-size:.72rem; color:var(--text-faint); letter-spacing:.05em; }
+  @media(max-width:600px){
+    .tts-bar{
+      bottom:0; left:0; transform:none; width:100%; max-width:100%;
+      border-left:0; border-right:0; border-bottom:0; padding:8px 6px;
+    }
+    .tts-bar select{ max-width:96px; }
+    .tts-meta{ width:100%; text-align:center; order:9; }
+  }
   .note-list{
     list-style:none; margin:1.7em 0; padding:18px 22px;
     background:var(--bg-elevated); border:1px dashed var(--border); border-radius:2px;
@@ -333,6 +368,23 @@
 <body>
 
 <div class="progress-bar" id="progress-bar"></div>
+
+<!-- Плеер живёт в body, а не внутри .view: у активной вьюхи есть transform
+     (анимация fadeIn), а он ломает position:fixed у потомков. -->
+<div class="tts-bar" id="tts-bar" hidden>
+  <button class="tts-btn primary" id="tts-play" type="button">▶ Слушать</button>
+  <button class="tts-btn" id="tts-stop" type="button" title="Остановить и вернуться к началу">⏹</button>
+  <select id="tts-voice" aria-label="Голос"></select>
+  <select id="tts-rate" aria-label="Скорость">
+    <option value="0.8">0.8×</option>
+    <option value="0.9">0.9×</option>
+    <option value="1" selected>1×</option>
+    <option value="1.15">1.15×</option>
+    <option value="1.3">1.3×</option>
+    <option value="1.5">1.5×</option>
+  </select>
+  <span class="tts-meta" id="tts-meta">нажмите на предложение — читать оттуда</span>
+</div>
 
 <header class="site-header">
   <a href="#/" class="brand">
@@ -684,10 +736,13 @@ async function renderChapter(num){
     const md = await fetchChapterMarkdown(ch);
     if (requestId !== activeChapterRequest) return; // user navigated away meanwhile
     document.getElementById('chapter-content').innerHTML = renderChapterHtml(md);
+    ttsPrepare(ch.number);
   } catch (e) {
     if (requestId !== activeChapterRequest) return;
     document.getElementById('chapter-content').innerHTML =
       '<p class="loading-note">Не удалось загрузить главу. Проверьте соединение и обновите страницу.</p>';
+    const bar = document.getElementById('tts-bar');
+    if (bar) bar.hidden = true;
   }
 
   const coverEl = document.getElementById('chapter-cover');
@@ -723,7 +778,239 @@ async function renderChapter(num){
   }
 }
 
+/* =========================================================================
+   АУДИО-ПЛЕЕР ГЛАВЫ (Web Speech API)
+   Текст режется на предложения, читаются по одному (это заодно обходит
+   баг Chrome, обрывающий длинные реплики). Текущее предложение
+   подсвечивается; клик по предложению — читать с этого места.
+   Позиция запоминается в localStorage отдельно по каждой главе.
+   ========================================================================= */
+
+const TTS_OK = 'speechSynthesis' in window;
+const TTS = { sentences: [], idx: 0, playing: false, chapter: null, voice: null, rate: 1 };
+let ttsGen = 0;
+const SENT_RE = /[^.!?…]+[.!?…]+[»"’')\]]*|[^.!?…]+$/g;
+
+function ttsWrapSentences(root){
+  const list = [];
+  let counter = 0;
+  root.querySelectorAll('p, li, h2').forEach(block => {
+    const nodes = [];
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+    let n; while ((n = walker.nextNode())) nodes.push(n);
+    if (!nodes.length) return;
+    const full = nodes.map(x => x.nodeValue).join('');
+    if (!full.trim()) return;
+
+    const ranges = [];
+    SENT_RE.lastIndex = 0;
+    let m;
+    while ((m = SENT_RE.exec(full)) !== null){
+      const txt = m[0].trim();
+      if (!txt) continue;
+      ranges.push({ s:m.index, e:m.index + m[0].length, i:counter });
+      list.push({ i:counter, text:txt });
+      counter++;
+    }
+    if (!ranges.length) return;
+
+    let pos = 0;
+    nodes.forEach(node => {
+      const val = node.nodeValue;
+      const nStart = pos, nEnd = pos + val.length;
+      pos = nEnd;
+      const hits = ranges.filter(r => r.s < nEnd && r.e > nStart);
+      if (!hits.length) return;
+      const frag = document.createDocumentFragment();
+      let cur = nStart;
+      hits.forEach(r => {
+        const a = Math.max(r.s, nStart), b = Math.min(r.e, nEnd);
+        if (a > cur) frag.appendChild(document.createTextNode(val.slice(cur - nStart, a - nStart)));
+        const span = document.createElement('span');
+        span.className = 'tts-s';
+        span.dataset.i = String(r.i);
+        span.textContent = val.slice(a - nStart, b - nStart);
+        frag.appendChild(span);
+        cur = b;
+      });
+      if (cur < nEnd) frag.appendChild(document.createTextNode(val.slice(cur - nStart)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  });
+  return list;
+}
+
+function ttsClearHighlight(){
+  document.querySelectorAll('.tts-s.tts-active').forEach(el => el.classList.remove('tts-active'));
+}
+function ttsHighlight(i){
+  ttsClearHighlight();
+  const els = document.querySelectorAll('.tts-s[data-i="' + i + '"]');
+  els.forEach(el => el.classList.add('tts-active'));
+  if (els[0]){
+    const r = els[0].getBoundingClientRect();
+    if (r.top < 90 || r.bottom > window.innerHeight - 130){
+      els[0].scrollIntoView({ block:'center', behavior:'smooth' });
+    }
+  }
+}
+function ttsMeta(text){
+  const el = document.getElementById('tts-meta');
+  if (el) el.textContent = text;
+}
+function ttsUpdateBtn(){
+  const b = document.getElementById('tts-play');
+  if (b) b.textContent = TTS.playing ? '⏸ Пауза' : '▶ Слушать';
+}
+function ttsSavePos(){ try{ localStorage.setItem('okami-tts-' + TTS.chapter, String(TTS.idx)); }catch(e){} }
+function ttsLoadPos(){
+  try{ const v = parseInt(localStorage.getItem('okami-tts-' + TTS.chapter), 10); return Number.isFinite(v) ? v : 0; }
+  catch(e){ return 0; }
+}
+
+function ttsSpeak(i){
+  if (!TTS.sentences.length) return;
+  if (i >= TTS.sentences.length){
+    TTS.playing = false; TTS.idx = 0; ttsSavePos(); ttsClearHighlight();
+    ttsUpdateBtn(); ttsMeta('глава прочитана');
+    return;
+  }
+  TTS.idx = i;
+  ttsSavePos();
+  ttsHighlight(i);
+  ttsMeta((i + 1) + ' / ' + TTS.sentences.length);
+  const gen = ttsGen;
+  const u = new SpeechSynthesisUtterance(TTS.sentences[i].text);
+  if (TTS.voice) u.voice = TTS.voice;
+  u.lang = TTS.voice ? TTS.voice.lang : 'ru-RU';
+  u.rate = TTS.rate;
+  u.onend = () => { if (gen === ttsGen && TTS.playing) ttsSpeak(i + 1); };
+  u.onerror = () => { if (gen === ttsGen && TTS.playing) ttsSpeak(i + 1); };
+  speechSynthesis.speak(u);
+}
+function ttsVoicesReady(){
+  return !!(speechSynthesis.getVoices() || []).length;
+}
+function ttsPlay(){
+  if (!TTS_OK || !TTS.sentences.length) return;
+  // без единого установленного голоса utterance «заканчивается» мгновенно,
+  // и плеер пронёсся бы по всей главе за секунду — не запускаем вовсе
+  if (!ttsVoicesReady()){
+    ttsMeta('синтез речи недоступен на этом устройстве');
+    const b = document.getElementById('tts-play');
+    if (b) b.disabled = true;
+    return;
+  }
+  ttsGen++; speechSynthesis.cancel();
+  TTS.playing = true; ttsUpdateBtn();
+  ttsSpeak(TTS.idx);
+}
+function ttsPause(){
+  ttsGen++; speechSynthesis.cancel();
+  TTS.playing = false; ttsUpdateBtn();
+  ttsMeta('пауза — ' + (TTS.idx + 1) + ' / ' + TTS.sentences.length);
+}
+function ttsStop(){
+  if (!TTS_OK) return;
+  ttsGen++; speechSynthesis.cancel();
+  TTS.playing = false; ttsClearHighlight(); ttsUpdateBtn();
+}
+function ttsReset(){
+  ttsStop();
+  TTS.idx = 0; ttsSavePos();
+  ttsMeta('нажмите на предложение — читать оттуда');
+}
+
+function ttsFillVoices(){
+  const sel = document.getElementById('tts-voice');
+  const play = document.getElementById('tts-play');
+  if (!sel) return;
+  const all = speechSynthesis.getVoices() || [];
+  const ru = all.filter(v => /^ru/i.test(v.lang));
+  const list = ru.length ? ru : all;
+  if (!list.length){
+    // голоса либо ещё грузятся (придёт voiceschanged), либо их нет вовсе
+    if (play) play.disabled = true;
+    sel.hidden = true;
+    return;
+  }
+  if (play) play.disabled = false;
+  sel.hidden = false;
+  sel.innerHTML = list.map((v, k) =>
+    '<option value="' + k + '">' + v.name.replace(/^(Microsoft|Google)\s+/, '') + '</option>'
+  ).join('');
+  sel._voices = list;
+  let pick = 0;
+  try{
+    const saved = localStorage.getItem('okami-tts-voice');
+    if (saved){ const j = list.findIndex(v => v.name === saved); if (j >= 0) pick = j; }
+  }catch(e){}
+  sel.value = String(pick);
+  TTS.voice = list[pick] || null;
+  if (!ru.length) ttsMeta('русского голоса в системе нет — читает доступный');
+}
+
+function ttsPrepare(chapterNum){
+  if (!TTS_OK) return;
+  const bar = document.getElementById('tts-bar');
+  const content = document.getElementById('chapter-content');
+  if (!bar || !content) return;
+  ttsStop();
+  TTS.chapter = chapterNum;
+  TTS.sentences = ttsWrapSentences(content);
+  if (!TTS.sentences.length){ bar.hidden = true; return; }
+  bar.hidden = false;
+  TTS.idx = Math.min(Math.max(ttsLoadPos(), 0), TTS.sentences.length - 1);
+  ttsUpdateBtn();
+  ttsMeta(TTS.idx > 0
+    ? 'продолжить с ' + (TTS.idx + 1) + ' / ' + TTS.sentences.length
+    : 'нажмите на предложение — читать оттуда');
+}
+
+function initTts(){
+  if (!TTS_OK){
+    const bar = document.getElementById('tts-bar');
+    if (bar) bar.remove();
+    return;
+  }
+  document.getElementById('tts-play').addEventListener('click', () => {
+    TTS.playing ? ttsPause() : ttsPlay();
+  });
+  document.getElementById('tts-stop').addEventListener('click', ttsReset);
+
+  const rate = document.getElementById('tts-rate');
+  rate.addEventListener('change', () => {
+    TTS.rate = parseFloat(rate.value) || 1;
+    if (TTS.playing) ttsPlay(); // перечитать текущее предложение с новой скоростью
+  });
+
+  const voice = document.getElementById('tts-voice');
+  voice.addEventListener('change', () => {
+    const list = voice._voices || [];
+    TTS.voice = list[parseInt(voice.value, 10)] || null;
+    try{ if (TTS.voice) localStorage.setItem('okami-tts-voice', TTS.voice.name); }catch(e){}
+    if (TTS.playing) ttsPlay();
+  });
+
+  document.getElementById('chapter-content').addEventListener('click', (e) => {
+    const s = e.target.closest('.tts-s');
+    if (!s) return;
+    if (e.target.closest('a')) return; // ссылки на персонажей работают как обычно
+    TTS.idx = parseInt(s.dataset.i, 10) || 0;
+    ttsPlay();
+  });
+
+  ttsFillVoices();
+  speechSynthesis.addEventListener('voiceschanged', ttsFillVoices);
+  // если голоса так и не подгрузились — честно сказать об этом, а не молчать
+  setTimeout(() => { if (!ttsVoicesReady()) ttsMeta('синтез речи недоступен на этом устройстве'); }, 1500);
+  window.addEventListener('beforeunload', () => { try{ speechSynthesis.cancel(); }catch(e){} });
+}
+
 function route(){
+  ttsStop();
+  const ttsBar = document.getElementById('tts-bar');
+  if (ttsBar) ttsBar.hidden = true; // покажем снова, когда глава отрендерится (ttsPrepare)
   const hash = location.hash || '#/';
   const chapterMatch = hash.match(/^#\/chapter\/(\d+)/);
   const characterMatch = hash.match(/^#\/character\/([a-z0-9-]+)/);
@@ -876,6 +1163,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initScrollProgress();
   initKeyboardNav();
   initCharPopover();
+  initTts();
 
   try {
     await Promise.all([loadManifest(), loadCharacters()]);
