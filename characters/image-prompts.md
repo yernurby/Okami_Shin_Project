@@ -10,7 +10,7 @@
 2. Скармливаешь якорь в GPT **как картинку** и берёшь промт **«2. Полный рост»**, **«3…»** и т.д. — там вместо описания внешности уже стоит «тот же персонаж, что на картинке». Так лицо/волосы/тату не меняются.
 3. Готовые кадры — на сайт (поле `cover` персонажа) и в архив референсов.
 
-**Каждый кадр — без фона-сцены и без текста.** Данные каноничные (не то, что было на старых листах): Шин 185/85, Огата 211/84 и т.д.
+**Каждый кадр — без фона-сцены и без текста.** Данные каноничные (не то, что было на старых листах): Шин 185/91, Огата 211/84 и т.д.
 
 ### Копипаст-обёртка (добавляй к каждому промту)
 
@@ -31,8 +31,8 @@ lowres, worst quality, low quality, jpeg artifacts, blurry, signature, watermark
 
 # ПЕРСОНАЖИ НА САЙТЕ
 
-## Оками Шин — 185 см / 85 кг · PF/центр-гибрид
-**Внешность (для якоря):** teenage boy (~17), messy dark-grey hair, steel-grey eyes with a cold heavy stare, thin black rectangular glasses, scar above the left eyebrow, silver hoop earring in the left ear, sharp jawline, lean muscular 185 cm build, geometric line tattoos and a wolf-head tattoo on hands/forearms, thin wolf-fang pendant necklace.
+## Оками Шин — 185 см / 91 кг · PF/центр-гибрид
+**Внешность (для якоря):** teenage boy (~17, looks older), messy dark-grey hair, steel-grey eyes with a cold heavy stare, thin black rectangular glasses, scar above the left eyebrow, silver hoop earring in the left ear, sharp jawline, broad powerful heavyweight build (185 cm, dense muscle), geometric line tattoos and a wolf-head tattoo on the forearms (no hand/palm tattoos), thin wolf-fang pendant necklace.
 
 1. **Лицо анфас (паспорт):** front-facing head-and-shoulders, neutral-cold expression, looking straight at the viewer, glasses on.
 2. **Полный рост:** full body, standing, all-black outfit — hoodie, jeans, heavy boots, pendant visible at the collar, arms relaxed, cold expression.

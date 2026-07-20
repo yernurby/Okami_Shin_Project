@@ -768,11 +768,11 @@ async function renderChapter(num){
   const requestId = ++activeChapterRequest;
 
   document.getElementById('chapter-arc').textContent = ch.arc;
-  document.getElementById('chapter-label').textContent = `Глава ${ch.number}`;
+  document.getElementById('chapter-label').textContent = ch.number === 0 ? 'Пролог' : `Глава ${ch.number}`;
   document.getElementById('chapter-title').textContent = ch.title;
   document.getElementById('chapter-title-jp').textContent = ch.titleJp;
   document.getElementById('chapter-content').innerHTML = '<p class="loading-note">Загрузка главы…</p>';
-  document.title = `${ch.title} — Глава ${ch.number} · ${STORY.title}`;
+  document.title = `${ch.title} — ${ch.number === 0 ? 'Пролог' : 'Глава ' + ch.number} · ${STORY.title}`;
 
   try {
     const md = await fetchChapterMarkdown(ch);
@@ -804,7 +804,7 @@ async function renderChapter(num){
 
   if (prev) {
     prevEl.href = `#/chapter/${prev.number}`;
-    prevEl.textContent = `← Глава ${prev.number}`;
+    prevEl.textContent = prev.number === 0 ? '← Пролог' : `← Глава ${prev.number}`;
     prevEl.classList.remove('disabled');
   } else {
     prevEl.textContent = '← Это первая глава';
@@ -812,7 +812,7 @@ async function renderChapter(num){
   }
   if (next) {
     nextEl.href = `#/chapter/${next.number}`;
-    nextEl.textContent = `Глава ${next.number} →`;
+    nextEl.textContent = next.number === 0 ? 'Пролог →' : `Глава ${next.number} →`;
     nextEl.classList.remove('disabled');
   } else {
     nextEl.textContent = 'Дальше пока нет →';

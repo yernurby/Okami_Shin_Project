@@ -1,0 +1,5 @@
+node_modules/
+creative-writing-skills/
+superpowers/
+.claude/skills/
+.claude/settings.local.json
