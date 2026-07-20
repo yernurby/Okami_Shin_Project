@@ -1,0 +1,11 @@
+{
+  "name": "okami-shin-project",
+  "version": "1.0.0",
+  "description": "Webtoon generation project",
+  "scripts": {
+    "generate": "node scripts/generate-chapter.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0"
+  }
+}
