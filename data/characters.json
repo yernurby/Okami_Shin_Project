@@ -372,9 +372,9 @@
     "matchNames": []
   },
   {
-    "slug": "hosino-rei",
-    "name": "Хосино Рэй",
-    "nameJp": "星野零",
+    "slug": "shiraishi-rei",
+    "name": "Сираиси Рэй",
+    "nameJp": "白石零",
     "photo": null,
     "revealed": false,
     "role": "Одноклассница, первый курс",
@@ -436,8 +436,8 @@
     "matchNames": []
   },
   {
-    "slug": "hosino-keita",
-    "name": "Хосино Кэйта",
+    "slug": "shiraishi-keita",
+    "name": "Сираиси Кэйта",
     "nameJp": null,
     "photo": null,
     "revealed": false,
@@ -452,8 +452,8 @@
     "matchNames": []
   },
   {
-    "slug": "hosino-satsuki",
-    "name": "Хосино Сацуки",
+    "slug": "shiraishi-satsuki",
+    "name": "Сираиси Сацуки",
     "nameJp": null,
     "photo": null,
     "revealed": false,
