@@ -1,3 +1,19 @@
 {
-  "tracks": []
+  "tracks": [
+    {
+      "title": "Дождь",
+      "file": "assets/music/rain-loop.mp3",
+      "loop": true
+    },
+    {
+      "title": "Первый свет",
+      "file": "assets/music/first-light-particles.mp3",
+      "loop": true
+    },
+    {
+      "title": "Глубокая синь",
+      "file": "assets/music/yoiyami-core-theme.mp3",
+      "loop": true
+    }
+  ]
 }

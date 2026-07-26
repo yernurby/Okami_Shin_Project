@@ -1086,7 +1086,10 @@ const Music = {
     this.audio.loop = (t.loop === true) || this.tracks.length === 1;
     if (time) {
       const seek = () => {
-        try { this.audio.currentTime = time; } catch(e){}
+        // сохранённая позиция могла остаться от трека другой длины
+        const d = this.audio.duration;
+        const safe = (isFinite(d) && time >= d - 1) ? 0 : time;
+        try { this.audio.currentTime = safe; } catch(e){}
         this.audio.removeEventListener('loadedmetadata', seek);
       };
       this.audio.addEventListener('loadedmetadata', seek);
