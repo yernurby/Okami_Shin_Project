@@ -569,7 +569,7 @@ let CHAPTERS = [];
 const chapterCache = {};
 
 async function loadManifest(){
-  const res = await fetch('data/chapters.json');
+  const res = await fetch('data/chapters.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error('manifest fetch failed: ' + res.status);
   CHAPTERS = await res.json();
 }
@@ -1004,7 +1004,9 @@ const Music = {
 
     let list = [];
     try {
-      const res = await fetch('data/music.json');
+      // no-cache = всегда переспросить сервер (ETag -> обычно 304, почти бесплатно).
+      // Без этого GitHub Pages отдаёт max-age=600, и старый плейлист живёт 10 минут.
+      const res = await fetch('data/music.json', { cache: 'no-cache' });
       if (res.ok) {
         const data = await res.json();
         list = Array.isArray(data) ? data : (data.tracks || []);
