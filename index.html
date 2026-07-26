@@ -362,6 +362,59 @@
     .reader-topbar{ padding:0 16px; }
     .reader{ padding:32px 16px 20px; }
   }
+
+  /* ===================== ФОНОВАЯ МУЗЫКА ===================== */
+  .music-wrap{ position:relative; display:flex; align-items:center; }
+  .icon-btn.is-playing{ border-color:var(--accent-red); color:var(--accent-red); }
+  .music-panel{
+    position:absolute; top:calc(100% + 10px); right:0; z-index:60;
+    width:250px; padding:14px;
+    background:var(--bg-elevated); border:1px solid var(--border); border-radius:2px;
+    box-shadow:var(--shadow);
+    opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition:opacity .18s ease, transform .18s ease, visibility .18s;
+  }
+  .music-panel.visible{ opacity:1; visibility:visible; transform:translateY(0); }
+  .music-title{
+    font-family:var(--font-ui); font-size:.68rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--text-faint); margin:0 0 10px;
+  }
+  .music-track{
+    font-family:var(--font-body); font-size:.9rem; color:var(--text);
+    margin:0 0 12px; line-height:1.35;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .music-controls{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .music-btn{
+    width:34px; height:34px; flex:none; border-radius:2px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; border:1px solid var(--border); color:var(--text);
+    cursor:pointer; font-size:.85rem; line-height:1;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .music-btn:hover{ border-color:var(--accent-red); background:var(--bg-card); }
+  .music-btn.primary{ border-color:var(--accent-red); color:var(--accent-red); }
+  .music-vol{ display:flex; align-items:center; gap:8px; }
+  .music-vol span{ font-size:.8rem; color:var(--text-faint); flex:none; }
+  .music-vol input[type="range"]{
+    -webkit-appearance:none; appearance:none; width:100%; height:2px;
+    background:var(--border); border-radius:2px; outline:none; cursor:pointer;
+  }
+  .music-vol input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:12px; height:12px;
+    border-radius:50%; background:var(--accent-red); cursor:pointer;
+  }
+  .music-vol input[type="range"]::-moz-range-thumb{
+    width:12px; height:12px; border:none; border-radius:50%;
+    background:var(--accent-red); cursor:pointer;
+  }
+  .music-hint{
+    margin:10px 0 0; font-family:var(--font-ui); font-size:.62rem;
+    letter-spacing:.06em; color:var(--text-faint); line-height:1.5;
+  }
+  @media (max-width:520px){
+    .music-panel{ width:calc(100vw - 32px); right:-8px; }
+  }
 </style>
 </head>
 <body>
@@ -379,9 +432,28 @@
   </a>
   <nav class="header-nav">
     <a href="#/characters" class="header-nav-link">Персонажи</a>
+    <div class="music-wrap">
+      <button class="icon-btn" id="music-toggle" aria-label="Фоновая музыка" aria-expanded="false">♪</button>
+      <div class="music-panel" id="music-panel" role="dialog" aria-label="Фоновая музыка">
+        <p class="music-title">Фоновая музыка</p>
+        <p class="music-track" id="music-track">—</p>
+        <div class="music-controls">
+          <button class="music-btn" id="music-prev" aria-label="Предыдущий трек">◀</button>
+          <button class="music-btn primary" id="music-play" aria-label="Включить">▶</button>
+          <button class="music-btn" id="music-next" aria-label="Следующий трек">▶▶</button>
+        </div>
+        <div class="music-vol">
+          <span>🔈</span>
+          <input type="range" id="music-vol" min="0" max="100" value="25" aria-label="Громкость">
+        </div>
+        <p class="music-hint" id="music-hint">Играет и при переходе между главами</p>
+      </div>
+    </div>
     <button class="icon-btn" id="theme-toggle" aria-label="Переключить тему">🌙</button>
   </nav>
 </header>
+
+<audio id="music-audio" preload="none"></audio>
 
 <!-- ===================== HOME ===================== -->
 <main class="view" id="view-home">
@@ -899,6 +971,171 @@ function initCharPopover(){
   });
 }
 
+/* =========================================================================
+   ФОНОВАЯ МУЗЫКА
+   Плейлист живёт в data/music.json, файлы — в assets/music/.
+   Если плейлист пуст или файла нет, кнопка молча убирается из шапки.
+
+   Почему музыка не прерывается между главами: сайт — SPA на hash-роутинге,
+   переход #/chapter/N не перезагружает страницу, а <audio> лежит вне
+   роутируемых вью. При НАСТОЯЩЕЙ перезагрузке (F5, открытие ссылки в новой
+   вкладке) позиция восстанавливается из localStorage, но автозапуск со
+   звуком блокируется браузером — нужен один клик.
+   ========================================================================= */
+const Music = {
+  tracks: [], idx: 0, audio: null, panel: null, btn: null, saveTimer: null,
+
+  read(){
+    try { return JSON.parse(localStorage.getItem('okami-music')) || {}; }
+    catch(e){ return {}; }
+  },
+  write(patch){
+    try {
+      const cur = this.read();
+      localStorage.setItem('okami-music', JSON.stringify(Object.assign(cur, patch)));
+    } catch(e){}
+  },
+
+  async init(){
+    this.btn = document.getElementById('music-toggle');
+    this.panel = document.getElementById('music-panel');
+    this.audio = document.getElementById('music-audio');
+    if (!this.btn || !this.audio) return;
+
+    let list = [];
+    try {
+      const res = await fetch('data/music.json');
+      if (res.ok) {
+        const data = await res.json();
+        list = Array.isArray(data) ? data : (data.tracks || []);
+      }
+    } catch(e){}
+    this.tracks = (list || []).filter(t => t && t.file);
+
+    if (!this.tracks.length) {
+      const wrap = this.btn.closest('.music-wrap');
+      if (wrap) wrap.remove();
+      return;
+    }
+
+    const saved = this.read();
+    this.idx = Number.isInteger(saved.idx) && saved.idx < this.tracks.length ? saved.idx : 0;
+
+    const vol = document.getElementById('music-vol');
+    const startVol = typeof saved.vol === 'number' ? saved.vol : 25;
+    vol.value = startVol;
+    this.audio.volume = startVol / 100;
+
+    this.load(this.idx, typeof saved.time === 'number' ? saved.time : 0);
+
+    this.btn.addEventListener('click', (e) => { e.stopPropagation(); this.togglePanel(); });
+    document.getElementById('music-play').addEventListener('click', () => this.toggle());
+    document.getElementById('music-prev').addEventListener('click', () => this.step(-1));
+    document.getElementById('music-next').addEventListener('click', () => this.step(1));
+    vol.addEventListener('input', () => {
+      this.audio.volume = vol.value / 100;
+      this.write({ vol: Number(vol.value) });
+    });
+
+    this.audio.addEventListener('ended', () => this.step(1));
+    this.audio.addEventListener('play',  () => this.paint());
+    this.audio.addEventListener('pause', () => this.paint());
+    this.audio.addEventListener('error', () => {
+      document.getElementById('music-hint').textContent = 'Трек не загрузился';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!this.panel.classList.contains('visible')) return;
+      if (this.panel.contains(e.target) || this.btn.contains(e.target)) return;
+      this.togglePanel(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this.togglePanel(false);
+    });
+
+    this.saveTimer = setInterval(() => {
+      if (!this.audio.paused) this.write({ idx: this.idx, time: this.audio.currentTime });
+    }, 4000);
+    window.addEventListener('pagehide', () => {
+      this.write({ idx: this.idx, time: this.audio.currentTime, on: !this.audio.paused });
+    });
+
+    // Была включена до перезагрузки — пробуем продолжить.
+    // Браузер почти наверняка откажет без жеста пользователя; это нормально.
+    if (saved.on) {
+      const attempt = this.audio.play();
+      if (attempt && attempt.catch) {
+        attempt.catch(() => {
+          document.getElementById('music-hint').textContent =
+            'Нажмите ▶ — браузер не даёт включить звук сам';
+        });
+      }
+    }
+    this.paint();
+  },
+
+  load(i, time){
+    const t = this.tracks[i];
+    if (!t) return;
+    this.idx = i;
+    this.audio.src = t.file;
+    this.audio.preload = 'auto';
+    // Бесшовное бесконечное повторение: если трек помечен loop
+    // или он в плейлисте один. Тогда 'ended' не срабатывает вовсе
+    // и стыка между повторами не слышно.
+    this.audio.loop = (t.loop === true) || this.tracks.length === 1;
+    if (time) {
+      const seek = () => {
+        try { this.audio.currentTime = time; } catch(e){}
+        this.audio.removeEventListener('loadedmetadata', seek);
+      };
+      this.audio.addEventListener('loadedmetadata', seek);
+    }
+    document.getElementById('music-track').textContent = t.title || t.file.split('/').pop();
+    document.getElementById('music-track').title = t.title || '';
+    this.write({ idx: i });
+  },
+
+  step(dir){
+    const wasPlaying = !this.audio.paused;
+    const next = (this.idx + dir + this.tracks.length) % this.tracks.length;
+    this.load(next, 0);
+    this.write({ time: 0 });
+    if (wasPlaying) this.audio.play().catch(() => {});
+    this.paint();
+  },
+
+  toggle(){
+    if (this.audio.paused) {
+      this.audio.play().then(() => {
+        document.getElementById('music-hint').textContent = 'Играет и при переходе между главами';
+      }).catch(() => {});
+      this.write({ on: true });
+    } else {
+      this.audio.pause();
+      this.write({ on: false, time: this.audio.currentTime });
+    }
+    this.paint();
+  },
+
+  togglePanel(force){
+    const show = typeof force === 'boolean' ? force : !this.panel.classList.contains('visible');
+    this.panel.classList.toggle('visible', show);
+    this.btn.setAttribute('aria-expanded', show ? 'true' : 'false');
+  },
+
+  paint(){
+    const playing = !this.audio.paused;
+    this.btn.textContent = playing ? '♫' : '♪';
+    this.btn.classList.toggle('is-playing', playing);
+    const play = document.getElementById('music-play');
+    play.textContent = playing ? '❚❚' : '▶';
+    play.setAttribute('aria-label', playing ? 'Пауза' : 'Включить');
+  }
+};
+
+function initMusic(){ Music.init(); }
+
 function initKeyboardNav(){
   document.addEventListener('keydown', (e) => {
     if (!document.getElementById('view-chapter').classList.contains('active')) return;
@@ -920,6 +1157,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initScrollProgress();
   initKeyboardNav();
   initCharPopover();
+  initMusic();
 
   try {
     await Promise.all([loadManifest(), loadCharacters()]);
