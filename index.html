@@ -172,6 +172,61 @@
   .section-head h2{ font-family:var(--font-display); font-weight:700; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; }
   .chapters-count{ color:var(--text-faint); font-family:var(--font-ui); font-size:.78rem; letter-spacing:.02em; }
   .chapters-grid{ display:flex; flex-direction:column; }
+
+  /* ---------- список глав: аккордеон по аркам ---------- */
+  .arc-group{ border-bottom:1px solid var(--border); }
+  .arc-head{
+    width:100%; display:flex; align-items:center; gap:14px;
+    padding:20px 8px; background:transparent; border:none; cursor:pointer;
+    text-align:left; color:inherit; font-family:var(--font-ui);
+    transition:background .18s ease, padding-left .18s ease;
+  }
+  .arc-head:hover{ background:var(--bg-elevated); padding-left:16px; }
+  .arc-chevron{
+    flex:none; width:14px; color:var(--accent-red); font-size:.7rem;
+    transition:transform .22s ease;
+  }
+  .arc-group.open .arc-chevron{ transform:rotate(90deg); }
+  .arc-name{
+    flex:1 1 auto; font-family:var(--font-display); font-weight:700;
+    font-size:1.05rem; letter-spacing:.04em; text-transform:uppercase;
+  }
+  .arc-group.open .arc-name{ color:var(--accent-red); }
+  .arc-meta{
+    flex:none; font-size:.7rem; letter-spacing:.08em; color:var(--text-faint);
+    text-transform:uppercase; white-space:nowrap;
+  }
+  .arc-body{ max-height:0; overflow:hidden; transition:max-height .28s ease; }
+  .arc-group.open .arc-body{ max-height:1600px; }
+
+  .ch-row{
+    display:flex; align-items:baseline; gap:12px;
+    padding:13px 8px 13px 36px; min-height:46px;
+    text-decoration:none; color:inherit;
+    border-top:1px solid var(--border);
+    transition:background .15s ease, padding-left .15s ease;
+  }
+  .ch-row:hover{ background:var(--bg-elevated); padding-left:44px; }
+  .ch-row-num{
+    flex:none; width:30px; font-family:var(--font-mono); font-size:.82rem;
+    color:var(--accent-red); font-weight:500;
+  }
+  .ch-row-title{
+    flex:1 1 auto; font-family:var(--font-body); font-size:1rem; line-height:1.35;
+  }
+  .ch-row-jp{ font-family:var(--font-jp); font-size:.78rem; color:var(--text-faint); margin-left:8px; }
+  .ch-row-time{
+    flex:none; font-family:var(--font-ui); font-size:.68rem; letter-spacing:.05em;
+    color:var(--text-faint); white-space:nowrap;
+  }
+  @media (max-width:560px){
+    .ch-row{ padding-left:26px; flex-wrap:wrap; }
+    .ch-row:hover{ padding-left:26px; }
+    .ch-row-jp{ display:none; }
+    .arc-name{ font-size:.92rem; }
+    .arc-meta{ font-size:.62rem; }
+  }
+
   .chapter-card{
     display:grid; grid-template-columns:56px 1fr; gap:22px; align-items:start;
     padding:26px 8px; border-bottom:1px solid var(--border);
@@ -757,22 +812,65 @@ function renderStoryInfo(){
   document.getElementById('hero-tags').innerHTML = STORY.genres.map(g => `<span class="tag">${g}</span>`).join('');
 }
 
+/* Список глав — аккордеон по аркам.
+   Описания глав из списка убраны: они длинные и мешают искать нужную главу.
+   Открытые арки запоминаются в localStorage; по умолчанию раскрыта последняя. */
+function readOpenArcs(){
+  try { return JSON.parse(localStorage.getItem('okami-open-arcs')) || null; }
+  catch(e){ return null; }
+}
+function writeOpenArcs(list){
+  try { localStorage.setItem('okami-open-arcs', JSON.stringify(list)); } catch(e){}
+}
+
 function renderHome(){
   const grid = document.getElementById('chapters-grid');
-  grid.innerHTML = CHAPTERS.map(ch => `
-    <a href="#/chapter/${ch.number}" class="chapter-card">
-      <div class="chapter-card-cover${ch.cover ? ' has-image' : ''}"${ch.cover ? ` style="background-image:url('${ch.cover}')"` : ''}>
-        <span class="chapter-card-number">${String(ch.number).padStart(2,'0')}</span>
+
+  // группируем по арке, сохраняя порядок появления
+  const arcs = [];
+  const byArc = {};
+  CHAPTERS.forEach(ch => {
+    const key = ch.arc || 'Без арки';
+    if (!byArc[key]) { byArc[key] = []; arcs.push(key); }
+    byArc[key].push(ch);
+  });
+
+  let open = readOpenArcs();
+  if (!open || !open.length) open = [arcs[arcs.length - 1]];   // последняя арка
+
+  grid.innerHTML = arcs.map(arc => {
+    const list = byArc[arc];
+    const first = list[0].number, last = list[list.length - 1].number;
+    const range = first === last ? `гл. ${first}` : `гл. ${first}–${last}`;
+    const isOpen = open.indexOf(arc) !== -1;
+    return `
+    <section class="arc-group${isOpen ? ' open' : ''}" data-arc="${arc}">
+      <button class="arc-head" aria-expanded="${isOpen}">
+        <span class="arc-chevron">▶</span>
+        <span class="arc-name">${arc}</span>
+        <span class="arc-meta">${list.length} · ${range}</span>
+      </button>
+      <div class="arc-body">
+        ${list.map(ch => `
+          <a href="#/chapter/${ch.number}" class="ch-row">
+            <span class="ch-row-num">${String(ch.number).padStart(2,'0')}</span>
+            <span class="ch-row-title">${ch.title}<span class="ch-row-jp">${ch.titleJp || ''}</span></span>
+            <span class="ch-row-time">${ch.readTime || ''}</span>
+          </a>`).join('')}
       </div>
-      <div class="chapter-card-body">
-        <span class="chapter-card-arc">${ch.arc}</span>
-        <h3 class="chapter-card-title">${ch.title}</h3>
-        <span class="chapter-card-title-jp">${ch.titleJp}</span>
-        <p class="chapter-card-summary">${ch.summary}</p>
-        <span class="chapter-card-meta"><span>${ch.readTime}</span><span>Читать →</span></span>
-      </div>
-    </a>
-  `).join('');
+    </section>`;
+  }).join('');
+
+  grid.querySelectorAll('.arc-head').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('.arc-group');
+      const nowOpen = !group.classList.contains('open');
+      group.classList.toggle('open', nowOpen);
+      btn.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+      writeOpenArcs([...grid.querySelectorAll('.arc-group.open')].map(g => g.dataset.arc));
+    });
+  });
+
   document.getElementById('chapters-count').textContent = `Доступно: ${CHAPTERS.length} · Запланировано: ${STORY.volume}`;
 }
 
